@@ -1,0 +1,46 @@
+{
+  "general": {
+    "label": "🌐 Général (tout projet)",
+    "text": "Génère une arborescence de projet pour [DÉCRIRE VOTRE PROJET ICI].\n\nContraintes :\n- Format : arborescence texte unicode (├── et └──)\n- Les dossiers se terminent par /\n- Un niveau d'indentation = 2 espaces ou 1 tabulation\n- Inclure les fichiers de config essentiels (.gitignore, README.md)\n- Ne pas inclure node_modules/, __pycache__/, .git/\n\nExemple de format attendu :\n\nmon-projet/\n├── src/\n│   ├── main.py\n│   └── utils/\n│       └── helpers.py\n├── tests/\n│   └── test_main.py\n├── README.md\n└── requirements.txt\n\nRéponds UNIQUEMENT avec l'arborescence, sans explication ni commentaire."
+  },
+
+  "python": {
+    "label": "🐍 Python / Package",
+    "text": "Génère une arborescence de package Python pour [DÉCRIRE LE PROJET].\n\nStructure attendue :\n- Dossier src/ avec le package principal\n- Dossier tests/ avec les fichiers de test\n- Fichiers : requirements.txt, README.md, .gitignore, pyproject.toml\n- Respecter la convention Python : __init__.py dans chaque package\n\nFormat : arborescence unicode (├── └──), dossiers avec /\n\nmon-package/\n├── src/\n│   └── mon_package/\n│       ├── __init__.py\n│       ├── core.py\n│       └── utils/\n│           └── __init__.py\n├── tests/\n│   └── test_core.py\n├── README.md\n├── pyproject.toml\n├── requirements.txt\n└── .gitignore\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "react": {
+    "label": "⚛️ React / Vite",
+    "text": "Génère une arborescence de projet React + Vite pour [DÉCRIRE L'APPLICATION].\n\nStructure attendue :\n- Dossier src/ avec : components/, pages/, hooks/, assets/\n- Fichiers racine : index.html, vite.config.js, package.json, .gitignore\n- Composants organisés par feature si l'app est complexe\n- Ne pas inclure node_modules/\n\nFormat : arborescence unicode (├── └──)\n\nmon-app-react/\n├── index.html\n├── package.json\n├── vite.config.js\n├── .gitignore\n└── src/\n    ├── main.jsx\n    ├── App.jsx\n    ├── components/\n    │   └── Button/\n    │       ├── Button.jsx\n    │       └── Button.css\n    ├── pages/\n    │   └── Home.jsx\n    ├── hooks/\n    └── assets/\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "django": {
+    "label": "🌿 Django",
+    "text": "Génère une arborescence de projet Django pour [DÉCRIRE LE PROJET].\n\nStructure attendue :\n- Dossier config/ pour les paramètres (settings.py, urls.py, wsgi.py)\n- Dossier apps/ pour les applications Django\n- Fichiers : manage.py, requirements.txt, .env, .gitignore\n- Chaque app Django : models.py, views.py, urls.py, admin.py, tests.py\n\nFormat : arborescence unicode (├── └──)\n\nmon-projet-django/\n├── manage.py\n├── requirements.txt\n├── .env\n├── .gitignore\n├── config/\n│   ├── __init__.py\n│   ├── settings.py\n│   ├── urls.py\n│   └── wsgi.py\n└── apps/\n    └── core/\n        ├── __init__.py\n        ├── models.py\n        ├── views.py\n        ├── urls.py\n        └── admin.py\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "nodejs": {
+    "label": "🟢 Node.js / API REST",
+    "text": "Génère une arborescence de projet Node.js API REST Express pour [DÉCRIRE L'API].\n\nStructure attendue :\n- Dossier src/ avec : routes/, controllers/, models/, middlewares/, config/\n- Fichiers racine : package.json, .env, .gitignore, README.md\n- Séparer la logique métier (services/) des routes\n\nFormat : arborescence unicode (├── └──)\n\nmon-api-node/\n├── package.json\n├── .env\n├── .gitignore\n├── README.md\n└── src/\n    ├── index.js\n    ├── app.js\n    ├── routes/\n    │   └── index.js\n    ├── controllers/\n    ├── services/\n    ├── models/\n    ├── middlewares/\n    └── config/\n        └── db.js\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "html-static": {
+    "label": "🌐 Site HTML statique",
+    "text": "Génère une arborescence de site web HTML/CSS/JS statique pour [DÉCRIRE LE SITE].\n\nStructure attendue :\n- Fichiers HTML à la racine ou dans un dossier pages/\n- Dossiers : css/, js/, assets/images/, assets/fonts/\n- Fichier README.md\n\nFormat : arborescence unicode (├── └──)\n\nmon-site/\n├── index.html\n├── README.md\n├── css/\n│   ├── style.css\n│   └── reset.css\n├── js/\n│   └── main.js\n└── assets/\n    ├── images/\n    └── fonts/\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "mysql": {
+    "label": "🗄️ Projet MySQL",
+    "text": "Génère une arborescence de projet avec scripts SQL pour [DÉCRIRE LA BASE DE DONNÉES].\n\nStructure attendue :\n- Dossier sql/ avec : init/, migrations/, seeds/, queries/, procedures/\n- Fichiers : README.md, .env, .gitignore\n- Les scripts SQL numérotés dans l'ordre d'exécution\n\nFormat : arborescence unicode (├── └──)\n\nmon-projet-sql/\n├── README.md\n├── .env\n├── .gitignore\n└── sql/\n    ├── init/\n    │   ├── 01_create_database.sql\n    │   └── 02_create_tables.sql\n    ├── migrations/\n    │   └── 001_exemple.sql\n    ├── seeds/\n    │   └── 01_data.sql\n    ├── queries/\n    └── procedures/\n\nRéponds UNIQUEMENT avec l'arborescence."
+  },
+
+  "strict": {
+    "label": "🔒 Mode Strict — Arborescence précise",
+    "text": "Génère une arborescence STRICTEMENT formatée en unicode pour [DÉCRIRE LE PROJET].\n\nRègles OBLIGATOIRES :\n- Utiliser UNIQUEMENT ├── pour les éléments non-derniers\n- Utiliser UNIQUEMENT └── pour le dernier élément\n- Utiliser │   pour les continuations de branche\n- Les dossiers se terminent par /\n- Indentation exacte : 4 caractères (│   ou    )\n- AUCUN commentaire, AUCUNE annotation après les noms\n- AUCUNE ligne vide entre les éléments\n\nExemple de format VALIDE :\n\nprojet/\n├── src/\n│   ├── main.py\n│   └── utils/\n│       └── helpers.py\n└── README.md\n\nRéponds UNIQUEMENT avec l'arborescence, zero commentaire."
+  },
+
+  "souple": {
+    "label": "🔧 Mode Souple — Arborescence annotée",
+    "text": "Génère une arborescence de projet pour [DÉCRIRE LE PROJET].\n\nFormat : unicode (├── └──) avec annotations courtes autorisées.\nTu peux ajouter de brèves descriptions après les noms de fichiers,\nséparées par au moins 2 espaces.\n\nExemple :\n\nprojet/\n├── src/\n│   ├── main.py          # point d'entrée\n│   └── utils/\n│       └── helpers.py   # fonctions utilitaires\n├── tests/\n│   └── test_main.py\n└── README.md\n\nRéponds avec l'arborescence annotée. Garde les descriptions courtes."
+  }
+}

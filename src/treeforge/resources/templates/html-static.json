@@ -1,0 +1,56 @@
+[
+  {
+    "name": "mon-projet",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "index.html",
+        "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>Mon Projet</title>\n  <link rel=\"stylesheet\" href=\"css/style.css\" />\n</head>\n<body>\n  <h1>Mon Projet</h1>\n  <script src=\"js/main.js\"></script>\n</body>\n</html>"
+      },
+      {
+        "name": "css",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "style.css",
+            "content": "/* styles principaux */\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-family: sans-serif;\n  line-height: 1.6;\n}\n"
+          },
+          {
+            "name": "reset.css",
+            "content": "/* reset CSS */\n"
+          }
+        ]
+      },
+      {
+        "name": "js",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "main.js",
+            "content": "// Point d'entrée JavaScript\nconsole.log('Hello, World!');\n"
+          }
+        ]
+      },
+      {
+        "name": "assets",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "images",
+            "is_dir": true,
+            "children": []
+          },
+          {
+            "name": "fonts",
+            "is_dir": true,
+            "children": []
+          }
+        ]
+      },
+      {
+        "name": "README.md",
+        "content": "# Mon Projet\n\nProjet web statique HTML / CSS / JS.\n\n## Lancer\n\nOuvrir `index.html` dans un navigateur.\n"
+      }
+    ]
+  }
+]

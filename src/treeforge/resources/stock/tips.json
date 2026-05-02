@@ -1,0 +1,20 @@
+[
+  "💡 Ctrl+Z annule la dernière action dans la zone de saisie",
+  "💡 Glissez-déposez un .txt ou .json directement dans la zone",
+  "💡 'Auto' détecte le format automatiquement (Unicode ├──, Windows tree, indentation...)",
+  "💡 'Analyser / Aperçu' montre l'arborescence avant de générer",
+  "💡 Clic droit dans la zone de saisie : Copier / Coller / Tout sélectionner",
+  "💡 Un dossier non vide demande confirmation avant d'écraser",
+  "💡 Utilisez l'onglet Templates pour sauvegarder vos structures favorites",
+  "💡 L'onglet Recaper exporte tout votre projet en un seul fichier .txt",
+  "📁 Bonne pratique HTML : séparer structure (html), style (css) et logique (js)",
+  "📁 Bonne pratique Python : src/ pour le code, tests/ pour les tests, docs/ pour la doc",
+  "📁 Bonne pratique React : un composant = un dossier avec son .jsx et son .css",
+  "📁 Bonne pratique SQL : un fichier par table ou migration, nommés 001_create_users.sql",
+  "💡 Le mode 'Strict' signale les erreurs de structure — utile pour déboguer",
+  "💡 Le mode 'Souple' corrige automatiquement les incohérences mineures",
+  "💡 Le mode 'Confiant' génère sans vérification — pour les pros pressés",
+  "📌 Format Unicode ├── : produit par ChatGPT, Claude, Gemini par défaut",
+  "📌 Format Windows tree : produit par la commande 'tree /f' dans cmd.exe",
+  "💡 Copiez une arborescence depuis GitHub et collez-la directement ici"
+]

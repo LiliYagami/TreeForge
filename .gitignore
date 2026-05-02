@@ -1,0 +1,40 @@
+# Environnements virtuels
+TForge_ENV/
+TForge_ENV_py312/
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Recaps générés
+recaps/
+
+# Préférences utilisateur (optionnel — retirer si tu veux versionner les prefs)
+# src/treeforge/resources/stock/user_prefs.json
+
+# Telemetry settings
+.treeforge/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user

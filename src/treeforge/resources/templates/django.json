@@ -1,0 +1,136 @@
+[
+  {
+    "name": "mon-projet-django",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "manage.py",
+        "content": "#!/usr/bin/env python\n\"\"\"Utilitaire Django en ligne de commande.\"\"\"\nimport os\nimport sys\n\n\ndef main():\n    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Impossible d'importer Django. Vérifiez votre environnement virtuel.\"\n        ) from exc\n    execute_from_command_line(sys.argv)\n\n\nif __name__ == '__main__':\n    main()\n"
+      },
+      {
+        "name": "requirements.txt",
+        "content": "Django>=4.2\npython-decouple>=3.8\n"
+      },
+      {
+        "name": ".env",
+        "content": "DEBUG=True\nSECRET_KEY=changez-moi-en-production\nDATABASE_URL=sqlite:///db.sqlite3\n"
+      },
+      {
+        "name": ".gitignore",
+        "content": "__pycache__/\n*.pyc\n.env\nvenv/\n.venv/\ndb.sqlite3\nmediafiles/\nstaticfiles/\n"
+      },
+      {
+        "name": "README.md",
+        "content": "# Mon Projet Django\n\n## Installation\n\n```bash\npython -m venv venv\nvenv\\Scripts\\activate\npip install -r requirements.txt\npython manage.py migrate\npython manage.py runserver\n```\n"
+      },
+      {
+        "name": "config",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "__init__.py",
+            "content": ""
+          },
+          {
+            "name": "settings.py",
+            "content": "from pathlib import Path\nfrom decouple import config\n\nBASE_DIR = Path(__file__).resolve().parent.parent\n\nSECRET_KEY = config('SECRET_KEY', default='dev-secret-key')\nDEBUG = config('DEBUG', default=True, cast=bool)\nALLOWED_HOSTS = ['*']\n\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    # Mes apps\n    'apps.core',\n]\n\nMIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\n\nROOT_URLCONF = 'config.urls'\n\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates'],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',\n            ],\n        },\n    },\n]\n\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.sqlite3',\n        'NAME': BASE_DIR / 'db.sqlite3',\n    }\n}\n\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'mediafiles'\n\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n"
+          },
+          {
+            "name": "urls.py",
+            "content": "from django.contrib import admin\nfrom django.urls import path, include\n\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('apps.core.urls')),\n]\n"
+          },
+          {
+            "name": "wsgi.py",
+            "content": "import os\nfrom django.core.wsgi import get_wsgi_application\nos.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')\napplication = get_wsgi_application()\n"
+          }
+        ]
+      },
+      {
+        "name": "apps",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "__init__.py",
+            "content": ""
+          },
+          {
+            "name": "core",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "__init__.py",
+                "content": ""
+              },
+              {
+                "name": "models.py",
+                "content": "from django.db import models\n\n# Vos modèles ici\n"
+              },
+              {
+                "name": "views.py",
+                "content": "from django.shortcuts import render\n\n\ndef index(request):\n    return render(request, 'core/index.html')\n"
+              },
+              {
+                "name": "urls.py",
+                "content": "from django.urls import path\nfrom . import views\n\nurlpatterns = [\n    path('', views.index, name='index'),\n]\n"
+              },
+              {
+                "name": "admin.py",
+                "content": "from django.contrib import admin\n# Enregistrez vos modèles ici\n"
+              },
+              {
+                "name": "apps.py",
+                "content": "from django.apps import AppConfig\n\n\nclass CoreConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'apps.core'\n"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "templates",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "base.html",
+            "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>{% block title %}Mon Projet Django{% endblock %}</title>\n  {% load static %}\n  <link rel=\"stylesheet\" href=\"{% static 'css/style.css' %}\" />\n</head>\n<body>\n  {% block content %}{% endblock %}\n</body>\n</html>\n"
+          },
+          {
+            "name": "core",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "index.html",
+                "content": "{% extends 'base.html' %}\n\n{% block title %}Accueil{% endblock %}\n\n{% block content %}\n  <h1>Bienvenue</h1>\n{% endblock %}\n"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "static",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "css",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "style.css",
+                "content": "/* Styles globaux */\n"
+              }
+            ]
+          },
+          {
+            "name": "js",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

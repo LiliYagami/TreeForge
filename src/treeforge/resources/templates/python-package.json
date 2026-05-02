@@ -1,0 +1,80 @@
+[
+  {
+    "name": "mon-projet-python",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "main.py",
+        "content": "\"\"\"Point d'entrée principal.\"\"\"\nfrom src.app import run\n\nif __name__ == \"__main__\":\n    run()\n"
+      },
+      {
+        "name": "requirements.txt",
+        "content": "# Dépendances du projet\n# Exemple :\n# requests==2.31.0\n"
+      },
+      {
+        "name": ".gitignore",
+        "content": "__pycache__/\n*.pyc\n*.pyo\n.env\nvenv/\n.venv/\ndist/\nbuild/\n*.egg-info/\n"
+      },
+      {
+        "name": "README.md",
+        "content": "# Mon Projet Python\n\n## Installation\n\n```bash\npython -m venv venv\nvenv\\Scripts\\activate  # Windows\nsource venv/bin/activate  # Mac/Linux\npip install -r requirements.txt\n```\n\n## Lancer\n\n```bash\npython main.py\n```\n"
+      },
+      {
+        "name": "src",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "__init__.py",
+            "content": ""
+          },
+          {
+            "name": "app.py",
+            "content": "\"\"\"Module principal.\"\"\"\n\n\ndef run():\n    \"\"\"Fonction principale.\"\"\"\n    print(\"Hello, World!\")\n"
+          },
+          {
+            "name": "config.py",
+            "content": "\"\"\"Configuration de l'application.\"\"\"\n\n# Constantes globales\nDEBUG = True\n"
+          },
+          {
+            "name": "utils",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "__init__.py",
+                "content": ""
+              },
+              {
+                "name": "helpers.py",
+                "content": "\"\"\"Fonctions utilitaires.\"\"\"\n"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "tests",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "__init__.py",
+            "content": ""
+          },
+          {
+            "name": "test_app.py",
+            "content": "\"\"\"Tests unitaires.\"\"\"\nimport unittest\nfrom src.app import run\n\n\nclass TestApp(unittest.TestCase):\n    def test_run(self):\n        # TODO: écrire les tests\n        pass\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n"
+          }
+        ]
+      },
+      {
+        "name": "docs",
+        "is_dir": true,
+        "children": [
+          {
+            "name": ".gitkeep",
+            "content": ""
+          }
+        ]
+      }
+    ]
+  }
+]

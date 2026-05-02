@@ -1,0 +1,92 @@
+[
+  {
+    "name": "mon-app-vue",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "index.html",
+        "content": "<!DOCTYPE html>\n<html lang=\"fr\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Mon App Vue</title>\n  </head>\n  <body>\n    <div id=\"app\"></div>\n    <script type=\"module\" src=\"/src/main.js\"></script>\n  </body>\n</html>\n"
+      },
+      {
+        "name": "package.json",
+        "content": "{\n  \"name\": \"mon-app-vue\",\n  \"version\": \"0.0.1\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"vite\",\n    \"build\": \"vite build\",\n    \"preview\": \"vite preview\"\n  },\n  \"dependencies\": {\n    \"vue\": \"^3.4.0\"\n  },\n  \"devDependencies\": {\n    \"@vitejs/plugin-vue\": \"^5.0.0\",\n    \"vite\": \"^5.0.0\"\n  }\n}\n"
+      },
+      {
+        "name": "vite.config.js",
+        "content": "import { defineConfig } from 'vite';\nimport vue from '@vitejs/plugin-vue';\n\nexport default defineConfig({\n  plugins: [vue()],\n});\n"
+      },
+      {
+        "name": ".gitignore",
+        "content": "node_modules\ndist\n.env\n.env.local\n"
+      },
+      {
+        "name": "README.md",
+        "content": "# Mon App Vue\n\nProjet Vue 3 avec Vite.\n\n## Démarrer\n\n```bash\nnpm install\nnpm run dev\n```\n"
+      },
+      {
+        "name": "src",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "main.js",
+            "content": "import { createApp } from 'vue';\nimport App from './App.vue';\nimport './assets/style.css';\n\ncreateApp(App).mount('#app');\n"
+          },
+          {
+            "name": "App.vue",
+            "content": "<template>\n  <div id=\"app\">\n    <h1>Mon App Vue</h1>\n    <RouterView />\n  </div>\n</template>\n\n<script setup>\n// Composant racine\n</script>\n\n<style>\n#app {\n  font-family: sans-serif;\n  padding: 2rem;\n}\n</style>\n"
+          },
+          {
+            "name": "components",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          },
+          {
+            "name": "views",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "HomeView.vue",
+                "content": "<template>\n  <main>\n    <h2>Accueil</h2>\n  </main>\n</template>\n"
+              }
+            ]
+          },
+          {
+            "name": "assets",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "style.css",
+                "content": "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\nbody {\n  font-family: sans-serif;\n  line-height: 1.6;\n}\n"
+              }
+            ]
+          },
+          {
+            "name": "stores",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "public",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "favicon.ico",
+            "content": ""
+          }
+        ]
+      }
+    ]
+  }
+]

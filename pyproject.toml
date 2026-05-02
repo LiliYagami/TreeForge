@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "treeforge"
+version = "1.0.0"
+description = "Générateur d'arborescences de projets — Windows"
+requires-python = ">=3.10"
+dependencies = [
+    "customtkinter>=5.2.2",
+    "darkdetect>=0.8.0",
+    "tkinterdnd2>=0.4.3",
+    "pillow>=12.1.1",
+]
+
+[project.scripts]
+treeforge = "treeforge.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

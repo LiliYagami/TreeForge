@@ -1,0 +1,100 @@
+[
+  {
+    "name": "mon-projet-mysql",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "README.md",
+        "content": "# Mon Projet MySQL\n\nStructure de projet avec scripts SQL organisés.\n\n## Initialiser la base\n\n```bash\nmysql -u root -p < sql/init/01_create_database.sql\nmysql -u root -p ma_base < sql/init/02_create_tables.sql\nmysql -u root -p ma_base < sql/seeds/01_insert_data.sql\n```\n"
+      },
+      {
+        "name": ".env",
+        "content": "DB_HOST=localhost\nDB_PORT=3306\nDB_NAME=ma_base\nDB_USER=root\nDB_PASSWORD=\n"
+      },
+      {
+        "name": ".gitignore",
+        "content": ".env\n*.log\nbackups/*.sql\n"
+      },
+      {
+        "name": "sql",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "init",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "01_create_database.sql",
+                "content": "-- Création de la base de données\nCREATE DATABASE IF NOT EXISTS `ma_base`\n  CHARACTER SET utf8mb4\n  COLLATE utf8mb4_unicode_ci;\n\nUSE `ma_base`;\n"
+              },
+              {
+                "name": "02_create_tables.sql",
+                "content": "-- Création des tables\nUSE `ma_base`;\n\nCREATE TABLE IF NOT EXISTS `users` (\n  `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,\n  `username`   VARCHAR(100) NOT NULL,\n  `email`      VARCHAR(255) NOT NULL UNIQUE,\n  `password`   VARCHAR(255) NOT NULL,\n  `created_at` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\n\n-- Ajoutez vos tables ici\n"
+              }
+            ]
+          },
+          {
+            "name": "migrations",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "001_exemple_migration.sql",
+                "content": "-- Migration exemple\n-- ALTER TABLE `users` ADD COLUMN `role` VARCHAR(50) DEFAULT 'user';\n"
+              }
+            ]
+          },
+          {
+            "name": "seeds",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "01_insert_data.sql",
+                "content": "-- Données de test\nUSE `ma_base`;\n\nINSERT INTO `users` (`username`, `email`, `password`) VALUES\n  ('admin', 'admin@exemple.com', 'hashed_password_here');\n"
+              }
+            ]
+          },
+          {
+            "name": "queries",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "users.sql",
+                "content": "-- Requêtes sur la table users\n\n-- Sélectionner tous les utilisateurs\nSELECT * FROM `users`;\n\n-- Chercher par email\n-- SELECT * FROM `users` WHERE `email` = 'exemple@mail.com';\n"
+              }
+            ]
+          },
+          {
+            "name": "procedures",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "backups",
+        "is_dir": true,
+        "children": [
+          {
+            "name": ".gitkeep",
+            "content": ""
+          }
+        ]
+      },
+      {
+        "name": "docs",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "schema.md",
+            "content": "# Schéma de la base de données\n\n## Table : users\n\n| Colonne    | Type         | Contrainte        |\n|------------|--------------|-------------------|\n| id         | INT UNSIGNED | PK, AUTO_INCREMENT|\n| username   | VARCHAR(100) | NOT NULL          |\n| email      | VARCHAR(255) | NOT NULL, UNIQUE  |\n| password   | VARCHAR(255) | NOT NULL          |\n| created_at | TIMESTAMP    | DEFAULT NOW()     |\n\n<!-- Ajoutez vos tables ici -->\n"
+          }
+        ]
+      }
+    ]
+  }
+]

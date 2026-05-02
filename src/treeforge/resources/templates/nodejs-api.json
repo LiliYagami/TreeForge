@@ -1,0 +1,102 @@
+[
+  {
+    "name": "mon-api-node",
+    "is_dir": true,
+    "children": [
+      {
+        "name": "package.json",
+        "content": "{\n  \"name\": \"mon-api-node\",\n  \"version\": \"1.0.0\",\n  \"main\": \"src/index.js\",\n  \"scripts\": {\n    \"start\": \"node src/index.js\",\n    \"dev\": \"nodemon src/index.js\"\n  },\n  \"dependencies\": {\n    \"express\": \"^4.18.0\",\n    \"dotenv\": \"^16.0.0\"\n  },\n  \"devDependencies\": {\n    \"nodemon\": \"^3.0.0\"\n  }\n}\n"
+      },
+      {
+        "name": ".env",
+        "content": "PORT=3000\nNODE_ENV=development\n"
+      },
+      {
+        "name": ".env.example",
+        "content": "PORT=3000\nNODE_ENV=development\n"
+      },
+      {
+        "name": ".gitignore",
+        "content": "node_modules\n.env\ndist\n"
+      },
+      {
+        "name": "README.md",
+        "content": "# Mon API Node.js\n\nAPI REST basique avec Express.\n\n## Démarrer\n\n```bash\nnpm install\nnpm run dev\n```\n\nL'API tourne sur `http://localhost:3000`.\n"
+      },
+      {
+        "name": "src",
+        "is_dir": true,
+        "children": [
+          {
+            "name": "index.js",
+            "content": "require('dotenv').config();\nconst app = require('./app');\n\nconst PORT = process.env.PORT || 3000;\n\napp.listen(PORT, () => {\n  console.log(`Serveur démarré sur http://localhost:${PORT}`);\n});\n"
+          },
+          {
+            "name": "app.js",
+            "content": "const express = require('express');\nconst router = require('./routes');\n\nconst app = express();\n\napp.use(express.json());\napp.use('/api', router);\n\nmodule.exports = app;\n"
+          },
+          {
+            "name": "routes",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "index.js",
+                "content": "const express = require('express');\nconst router = express.Router();\n\nrouter.get('/', (req, res) => {\n  res.json({ message: 'API opérationnelle' });\n});\n\nmodule.exports = router;\n"
+              }
+            ]
+          },
+          {
+            "name": "controllers",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          },
+          {
+            "name": "middlewares",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          },
+          {
+            "name": "models",
+            "is_dir": true,
+            "children": [
+              {
+                "name": ".gitkeep",
+                "content": ""
+              }
+            ]
+          },
+          {
+            "name": "config",
+            "is_dir": true,
+            "children": [
+              {
+                "name": "db.js",
+                "content": "// Configuration de la base de données\n// Exemple avec mysql2 ou mongoose\n\nmodule.exports = {};\n"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "tests",
+        "is_dir": true,
+        "children": [
+          {
+            "name": ".gitkeep",
+            "content": ""
+          }
+        ]
+      }
+    ]
+  }
+]
