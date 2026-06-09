@@ -22,8 +22,7 @@
 <nav id="nav">
   <div class="nav-inner">
     <a href="#" class="nav-logo">
-      <span class="logo-icon">🌲</span>
-      <span class="logo-text">TreeForge</span>
+      <img src="assets/logo.png" alt="TreeForge Logo" style="height: 38px; width: auto;" />
     </a>
     <ul class="nav-links">
       <li><a href="#features">Fonctionnalités</a></li>
@@ -50,6 +49,10 @@
   </div>
 
   <div class="hero-inner">
+    <div class="hero-logo" style="margin-bottom: 2rem;">
+      <img src="assets/logo.png" alt="TreeForge Logo" style="height: 180px; width: auto; max-width: 100%;" />
+    </div>
+
     <div class="hero-badge">
       <span class="badge-dot"></span>
       v3.0.0 — Windows — Gratuit
@@ -230,6 +233,67 @@
         <div class="ws">🤖 IA modifie<br><span class="dim">Claude / GPT</span></div>
         <div class="ws-arrow">→</div>
         <div class="ws">📁 Projet mis à jour<br><span class="dim">RevRecaper</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     BENCHMARKS
+     ══════════════════════════════════════════════════════════ -->
+<section id="benchmarks">
+  <div class="section-inner">
+    <div class="section-label">Performances</div>
+    <h2>Vitesse d'exécution brute.</h2>
+    <p class="section-sub">Mesures réelles de vitesse d'exécution de la version v4.0.0 (TreeForge C) sur un processeur standard.</p>
+
+    <div class="bench-grid">
+      <!-- Générateur -->
+      <div class="bench-card">
+        <div class="bench-card-header">
+          <span class="bench-card-title">⚡ Générateur (Écriture sur disque)</span>
+          <span class="bench-card-subtitle">Création de l'arborescence et écriture des fichiers</span>
+        </div>
+        <div class="bench-list">
+          <div class="bench-item">
+            <span class="bench-item-label">Petit projet (10 fichiers)</span>
+            <span class="bench-item-value success">~6 ms</span>
+          </div>
+          <div class="bench-item">
+            <span class="bench-item-label">Projet moyen (100 fichiers)</span>
+            <span class="bench-item-value success">~57 ms</span>
+          </div>
+          <div class="bench-item">
+            <span class="bench-item-label">Grand projet (300 fichiers + Boilerplates)</span>
+            <span class="bench-item-value success">~234 ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recaper -->
+      <div class="bench-card">
+        <div class="bench-card-header">
+          <span class="bench-card-title">📦 Recaper (Export IA)</span>
+          <span class="bench-card-subtitle">Analyse récursive et packaging complet en un fichier .txt</span>
+        </div>
+        <div class="bench-list">
+          <div class="bench-item">
+            <span class="bench-item-label">Script Python simple (15 fichiers, 5 Ko)</span>
+            <span class="bench-item-value success">~14 ms</span>
+          </div>
+          <div class="bench-item">
+            <span class="bench-item-label">Projet Web frontend (32 fichiers, 8 Ko)</span>
+            <span class="bench-item-value success">~35 ms</span>
+          </div>
+          <div class="bench-item">
+            <span class="bench-item-label">Structure TreeForge (51 fichiers, 20 Ko)</span>
+            <span class="bench-item-value success">~46 ms</span>
+          </div>
+          <div class="bench-item">
+            <span class="bench-item-label">Projet Django complet (104 fichiers, 44 Ko)</span>
+            <span class="bench-item-value success">~87 ms</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -507,8 +571,7 @@
   <div class="footer-inner">
     <div class="footer-left">
       <a href="#" class="nav-logo">
-        <span class="logo-icon">🌲</span>
-        <span class="logo-text">TreeForge</span>
+        <img src="assets/logo.png" alt="TreeForge Logo" style="height: 48px; width: auto;" />
       </a>
       <p class="footer-tagline">think smart, work fast</p>
     </div>
