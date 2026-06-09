@@ -42,6 +42,7 @@ class PreviewModal(ctk.CTkToplevel):
         **kwargs,
     ):
         super().__init__(master, **kwargs)
+        self.withdraw()  # Masquer temporairement
 
         self._result    = parse_result
         self._on_confirm = on_confirm
@@ -56,9 +57,6 @@ class PreviewModal(ctk.CTkToplevel):
 
         # Surplombe la fenêtre principale
         self.transient(master)
-        self.grab_set()           # bloque les clics sur la fenêtre parente
-        self.lift()
-        self.focus_force()
 
         # Fermeture via croix = annulation
         self.protocol("WM_DELETE_WINDOW", self._cancel)
@@ -66,8 +64,14 @@ class PreviewModal(ctk.CTkToplevel):
         self._build()
         self._load()
 
-        # Centrage par rapport au parent
-        self.after(50, self._center)
+        self.after(100, self._show_and_center)
+
+    def _show_and_center(self):
+        self._center()
+        self.deiconify()
+        self.grab_set()
+        self.lift()
+        self.focus_force()
 
     # ── Construction ─────────────────────────────────────────────────────
 
@@ -82,7 +86,7 @@ class PreviewModal(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             header,
-            text="Vérifiez l'arborescence avant de générer",
+            text="Vérifiez l'arborescence (Espace/Clic droit pour exclure)",
             font=("Consolas", 13, "bold"),
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=10, sticky="w")

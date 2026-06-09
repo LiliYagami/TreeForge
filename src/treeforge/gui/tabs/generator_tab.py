@@ -25,7 +25,7 @@ from treeforge.config import MODES_PARSING, MODES_CONTENU
 from treeforge.core.parser import parse
 from treeforge.core.generator import generate
 from treeforge.utils.logger import logger
-from treeforge.utils.helpers import load_tips, load_prompts, load_prefs, save_prefs
+from treeforge.utils.helpers import load_tips, load_prefs, save_prefs
 from treeforge.utils.drag_drop import setup_drop_target, DND_AVAILABLE
 from treeforge.utils.context_menu import attach_context_menu
 from treeforge.gui.components.preview_modal import PreviewModal
@@ -55,20 +55,7 @@ FORMAT_DETECTED_LABELS = {
 # ── Ressources chargées depuis les JSON ───────────────────────────────────────
 
 TIPS     = load_tips()
-_PROMPTS = load_prompts()   # {"general": {"label":..., "text":...}, ...}
 _PREFS   = load_prefs()     # prefs initiales au niveau module (snapshot)
-
-# ── Prompt IA — chargé depuis prompts.json ────────────────────────────────────
-
-_PROMPT_FALLBACK = (
-    "Génère une arborescence de projet pour [DÉCRIRE VOTRE PROJET].\n\n"
-    "Format attendu : arborescence texte indenté ou unicode (├──).\n"
-    "Réponds UNIQUEMENT avec l'arborescence, sans explications."
-)
-
-def _get_prompt(key: str = "general") -> str:
-    """Retourne le texte du prompt pour la clé donnée, ou le fallback."""
-    return _PROMPTS.get(key, {}).get("text", _PROMPT_FALLBACK)
 
 # ── Helpers warnings ──────────────────────────────────────────────────────────
 
@@ -108,27 +95,23 @@ class GeneratorTab(ctk.CTkFrame):
 
         # ── Chargement prefs ──────────────────────────────────────────────────
         self._prefs       = load_prefs()
-        self._prompt_open = self._prefs.get("prompt_panel_open", False)
-        self._prompt_key  = self._prefs.get("last_prompt_key", "general")
 
         self._build()
         self._setup_input_features()
-        self._start_tips()
-
-        # ── Restaurer prompt panel si ouvert ──────────────────────────────────
-        if self._prompt_open:
-            self._toggle_prompt()
+        self.refresh_tab_settings()
 
     def _build(self):
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=0)  # prompt
-        self.grid_rowconfigure(2, weight=0)  # tips
-        self.grid_rowconfigure(3, weight=0)  # boutons
+        self.grid_rowconfigure(0, weight=1)  # input_area
+        self.grid_rowconfigure(1, weight=0)  # tips
+        self.grid_rowconfigure(2, weight=0)  # boutons
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=0)
 
         # ── Zone de saisie ────────────────────────────────────────────────────
-        self.input_area = ctk.CTkTextbox(self, font=("Consolas", 13), wrap="word")
+        self.input_area = ctk.CTkTextbox(
+            self, font=("Consolas", 13), wrap="word",
+            fg_color=("white", "gray16"),
+        )
         self.input_area.grid(row=0, column=0, padx=(12, 6), pady=(12, 4), sticky="nsew")
 
         self._placeholder = "Collez ici votre arborescence\n(texte indenté ou JSON)..."
@@ -144,7 +127,7 @@ class GeneratorTab(ctk.CTkFrame):
             scrollbar_button_color=("gray75", "gray35"),
             scrollbar_button_hover_color=("gray60", "gray50"),
         )
-        right.grid(row=0, column=1, rowspan=3, padx=(0, 12), pady=12, sticky="nsew")
+        right.grid(row=0, column=1, rowspan=2, padx=(0, 12), pady=12, sticky="nsew")
         right.grid_columnconfigure(0, weight=1)
 
         # ── Section Format ────────────────────────────────────────────────────
@@ -182,7 +165,7 @@ class GeneratorTab(ctk.CTkFrame):
             textvariable=self._fmt_feedback_var,
             anchor="w", justify="left",
             font=("Consolas", 10),
-            text_color=("#1f6aa5", "#4da6ff"),
+            text_color=("#1a5c8c", "#4da6ff"),
             wraplength=170,
         ).pack(anchor="w", padx=12, pady=(4, 0))
 
@@ -239,11 +222,13 @@ class GeneratorTab(ctk.CTkFrame):
         self.destination_var = ctk.StringVar(
             value=self._prefs.get("last_destination", "")
         )
-        ctk.CTkEntry(
+        self.destination_entry = ctk.CTkEntry(
             right, textvariable=self.destination_var,
-            placeholder_text="(non défini)", state="readonly",
+            placeholder_text="(non défini)", state="normal",
             font=("Consolas", 11),
-        ).pack(fill="x", padx=12, pady=(0, 6))
+        )
+        self.destination_entry.pack(fill="x", padx=12, pady=(0, 6))
+        self.destination_entry.bind("<Key>", lambda e: "break")
 
         ctk.CTkButton(
             right, text="Choisir un dossier...", height=32,
@@ -256,160 +241,86 @@ class GeneratorTab(ctk.CTkFrame):
         ctk.CTkButton(
             right, text="Effacer", height=28,
             fg_color="transparent", border_width=1,
-            text_color=("gray40", "gray60"),
+            text_color=("gray25", "gray70"),
             hover_color=("gray85", "gray25"),
             font=("Consolas", 11),
             command=self._clear_destination,
         ).pack(fill="x", padx=12, pady=(0, 12))
 
-        # ── Zone Prompt IA (collapsible) ──────────────────────────────────────
-        self._prompt_frame = ctk.CTkFrame(
-            self, fg_color=("gray88", "gray20"), corner_radius=6
-        )
-        self._prompt_frame.grid(row=1, column=0, padx=(12, 6), pady=(0, 4), sticky="ew")
-        self._prompt_frame.grid_columnconfigure(1, weight=1)
-
-        self._prompt_toggle_btn = ctk.CTkButton(
-            self._prompt_frame,
-            text="🧠 Prompt IA  ▶",
-            width=160, height=28,
-            fg_color="transparent",
-            text_color=("#1f6aa5", "#4da6ff"),
-            hover_color=("gray80", "gray28"),
-            font=("Consolas", 11, "bold"),
-            anchor="w",
-            command=self._toggle_prompt,
-        )
-        self._prompt_toggle_btn.grid(row=0, column=0, padx=(8, 4), pady=4, sticky="w")
-
-        ctk.CTkLabel(
-            self._prompt_frame,
-            text="Copiez ce prompt dans ChatGPT / Claude / Gemini",
-            anchor="w",
-            font=("Consolas", 10),
-            text_color=("gray50", "gray55"),
-        ).grid(row=0, column=1, padx=4, pady=4, sticky="w")
-
-        self._prompt_content = ctk.CTkFrame(
-            self._prompt_frame, fg_color="transparent"
-        )
-        # caché par défaut — _toggle_prompt l'affiche si prefs le demande
-
-        self._prompt_textbox = ctk.CTkTextbox(
-            self._prompt_content,
-            height=140,
-            font=("Consolas", 11),
-            wrap="word",
-            fg_color=("gray82", "gray17"),
-        )
-        self._prompt_textbox.pack(fill="x", padx=8, pady=(0, 4))
-        # PATCH — chargé depuis prompts.json via la clé sauvegardée
-        self._prompt_textbox.insert("1.0", _get_prompt(self._prompt_key))
-
-        btn_row = ctk.CTkFrame(self._prompt_content, fg_color="transparent")
-        btn_row.pack(fill="x", padx=8, pady=(0, 6))
-
-        ctk.CTkButton(
-            btn_row,
-            text="📋 Copier le prompt",
-            height=28,
-            font=("Consolas", 11),
-            command=self._copy_prompt,
-        ).pack(side="left", padx=(0, 6))
-
-        ctk.CTkButton(
-            btn_row,
-            text="↩️ Réinitialiser",
-            height=28,
-            fg_color="transparent",
-            border_width=1,
-            text_color=("gray40", "gray60"),
-            hover_color=("gray85", "gray25"),
-            font=("Consolas", 11),
-            command=self._reset_prompt,
-        ).pack(side="left")
-
         # ── Barre d'astuces ───────────────────────────────────────────────────
-        tips_bar = ctk.CTkFrame(
+        self._tips_bar = ctk.CTkFrame(
             self, fg_color=("gray85", "gray22"), corner_radius=4, height=28
         )
-        tips_bar.grid(row=2, column=0, padx=(12, 6), pady=(0, 4), sticky="ew")
-        tips_bar.grid_propagate(False)
-        tips_bar.grid_columnconfigure(0, weight=1)
+        self._tips_bar.grid_propagate(False)
+        self._tips_bar.grid_columnconfigure(0, weight=1)
 
         self._tip_var = ctk.StringVar(value=TIPS[0] if TIPS else "💡 TreeForge")
         ctk.CTkLabel(
-            tips_bar,
+            self._tips_bar,
             textvariable=self._tip_var,
             anchor="w",
             font=("Consolas", 10),
-            text_color=("gray35", "gray65"),
+            text_color=("gray20", "gray80"),
         ).grid(row=0, column=0, padx=10, sticky="ew")
 
         # ── Barre de boutons ──────────────────────────────────────────────────
         btn_bar = ctk.CTkFrame(self, fg_color="transparent")
-        btn_bar.grid(row=3, column=0, columnspan=2, padx=12, pady=(0, 12), sticky="ew")
+        btn_bar.grid(row=2, column=0, columnspan=2, padx=12, pady=(0, 12), sticky="ew")
         btn_bar.grid_columnconfigure(0, weight=1)
         btn_bar.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkButton(
+        self._btn_analyze = ctk.CTkButton(
             btn_bar, text="Analyser / Apercu", height=36,
             font=("Consolas", 12),
             command=self._analyze,
-        ).grid(row=0, column=0, padx=(0, 6), sticky="ew")
+        )
+        self._btn_analyze.grid(row=0, column=0, padx=(0, 6), sticky="ew")
 
-        ctk.CTkButton(
+        self._btn_generate = ctk.CTkButton(
             btn_bar, text="Generer structure", height=36,
             fg_color="#2e7d32", hover_color="#1b5e20",
             font=("Consolas", 13, "bold"),
             command=self._generate,
-        ).grid(row=0, column=1, padx=(6, 0), sticky="ew")
+        )
+        self._btn_generate.grid(row=0, column=1, padx=(6, 0), sticky="ew")
+
 
     # ── Prefs ─────────────────────────────────────────────────────────────────
 
     def _save_prefs(self):
         """Sauvegarde l'état courant dans user_prefs.json."""
-        self._prefs.update({
+        prefs = load_prefs()
+        prefs.update({
             "parsing_mode"     : self.parsing_mode_var.get(),
             "content_mode"     : self.content_mode_var.get(),
             "format_mode"      : self.format_var.get(),
             "last_destination" : self.destination_var.get(),
-            "prompt_panel_open": self._prompt_open,
-            "last_prompt_key"  : self._prompt_key,
         })
-        save_prefs(self._prefs)
-
-    # ── Prompt ────────────────────────────────────────────────────────────────
-
-    def _toggle_prompt(self):
-        if self._prompt_open:
-            self._prompt_content.grid_forget()
-            self._prompt_toggle_btn.configure(text="🧠 Prompt IA  ▶")
-            self._prompt_open = False
-        else:
-            self._prompt_content.grid(
-                row=1, column=0, columnspan=2, padx=0, pady=(0, 4), sticky="ew"
-            )
-            self._prompt_toggle_btn.configure(text="🧠 Prompt IA  ▼")
-            self._prompt_open = True
-        self._save_prefs()  # PATCH
-
-    def _copy_prompt(self):
-        text = self._prompt_textbox.get("1.0", "end-1c")
-        self.clipboard_clear()
-        self.clipboard_append(text)
-        self._update_status("Prompt copié dans le presse-papiers")
-        logger.info("Prompt IA copié")
-
-    def _reset_prompt(self):
-        self._prompt_textbox.delete("1.0", "end")
-        self._prompt_textbox.insert("1.0", _get_prompt(self._prompt_key))
-        logger.info(f"Prompt IA réinitialisé ({self._prompt_key})")
+        save_prefs(prefs)
 
     # ── Astuces rotatives ─────────────────────────────────────────────────────
 
     def _start_tips(self):
-        self._rotate_tip()
+        if self._prefs.get("tips_enabled", True):
+            if not self._tip_job:
+                self._rotate_tip()
+
+    def _apply_tips_visibility(self):
+        enabled = self._prefs.get("tips_enabled", True)
+        if enabled:
+            self._tips_bar.grid(row=1, column=0, padx=(12, 6), pady=(0, 4), sticky="ew")
+            if not self._tip_job:
+                self._start_tips()
+        else:
+            self._tips_bar.grid_forget()
+            if self._tip_job:
+                self.after_cancel(self._tip_job)
+                self._tip_job = None
+
+    def refresh_tab_settings(self):
+        self._prefs = load_prefs()
+        self._apply_tips_visibility()
+        self.destination_var.set(self._prefs.get("last_destination", ""))
 
     def _rotate_tip(self):
         if TIPS:
@@ -624,6 +535,9 @@ class GeneratorTab(ctk.CTkFrame):
         self._update_status("Generation en cours...")
         logger.info(f"Generation -> {dest}  [contenu={content}]")
 
+        self._btn_analyze.configure(state="disabled")
+        self._btn_generate.configure(state="disabled")
+
         def _run():
             nb_dirs, nb_files, errors = generate(
                 result, dest, content,
@@ -632,6 +546,7 @@ class GeneratorTab(ctk.CTkFrame):
             self.after(0, self._on_done, nb_dirs, nb_files, errors, dest)
 
         threading.Thread(target=_run, daemon=True).start()
+
 
     def _on_done(self, nb_dirs: int, nb_files: int, errors: list, dest: str):
         if errors:
@@ -652,7 +567,10 @@ class GeneratorTab(ctk.CTkFrame):
                 "Generation reussie",
                 f"{nb_dirs} dossier(s) et {nb_files} fichier(s) crees.\n\n{dest}"
             )
+        self._btn_analyze.configure(state="normal")
+        self._btn_generate.configure(state="normal")
         self._save_prefs()  # PATCH
+
 
 # ── Flatten ───────────────────────────────────────────────────────────────────
 

@@ -4,9 +4,9 @@
   "parsing_mode": "🔒 Strict",
   "content_mode": "Vide",
   "format_mode": "Auto",
-  "theme": "dark",
-  "last_prompt_key": "general",
+  "theme": "system",
+  "last_prompt_key": "html-static",
   "tips_enabled": true,
-  "prompt_panel_open": false,
+  "prompt_panel_open": true,
   "telemetry_enabled": false
 }

@@ -5,6 +5,7 @@ from __future__ import annotations
 import platform
 import customtkinter as ctk
 
+from treeforge.gui.tabs.prompt_tab         import PromptTab
 from treeforge.gui.tabs.generator_tab      import GeneratorTab
 from treeforge.gui.tabs.recaper_tab        import RecaperTab
 from treeforge.gui.tabs.revers_recaper_tab import ReversRecaperTab
@@ -29,8 +30,8 @@ except Exception as e:
 
 # ─────────────────────────────────────────────────────────────────────────────
 APP_TITLE   = "TreeForge"
-APP_VERSION = "1.0.0"
-TAGLINE     = "think smart, work fast"
+APP_VERSION = "3.0.0"
+TAGLINE     = "Think smart, work fast"
 WIN_SIZE    = "900x720"
 MIN_SIZE    = (750, 560)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,7 +94,7 @@ class MainWindow(_Base):
             left,
             text=f"  —  {TAGLINE}",
             font=ctk.CTkFont(size=12),
-            text_color=("gray50", "gray55"),
+            text_color=("gray25", "gray70"),
             anchor="w",
         ).pack(side="left", padx=(4, 0))
 
@@ -106,6 +107,7 @@ class MainWindow(_Base):
             text="≡",
             width=36, height=36,
             fg_color="transparent",
+            text_color=("gray15", "gray90"),
             hover_color=("gray85", "gray25"),
             font=ctk.CTkFont(size=18),
             command=self._toggle_log,
@@ -116,6 +118,7 @@ class MainWindow(_Base):
             text="⚙️",
             width=36, height=36,
             fg_color="transparent",
+            text_color=("gray15", "gray90"),
             hover_color=("gray85", "gray25"),
             command=self._open_settings,
         ).pack(side="left")
@@ -128,13 +131,21 @@ class MainWindow(_Base):
         self._tabview = ctk.CTkTabview(self)
         self._tabview.grid(row=1, column=0, sticky="nsew", padx=10, pady=(6, 0))
 
-        for name in ("Générer", "Recaper", "Restaurer", "Templates"):
+        for name in ("Prompt IA", "Générer", "Recaper", "Restaurer", "Templates"):
             self._tabview.add(name)
 
-        GeneratorTab(
+        self.prompt_tab = PromptTab(
+            self._tabview.tab("Prompt IA"),
+            update_status=self._set_status,
+        )
+        self.prompt_tab.pack(fill="both", expand=True)
+
+        self.generator_tab = GeneratorTab(
             self._tabview.tab("Générer"),
             update_status=self._set_status,
-        ).pack(fill="both", expand=True)
+        )
+        self.generator_tab.pack(fill="both", expand=True)
+
 
         RecaperTab(
             self._tabview.tab("Recaper"),
@@ -191,10 +202,10 @@ class MainWindow(_Base):
 
         ctk.CTkLabel(
             bar,
-            text=f"v{APP_VERSION}  •  {TAGLINE}",
+            text=f"V{APP_VERSION}  •  {TAGLINE}",
             anchor="e",
             font=ctk.CTkFont(size=11),
-            text_color=("gray55", "gray45"),
+            text_color=("gray25", "gray75"),
         ).grid(row=0, column=1, sticky="e", padx=12)
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -207,3 +218,10 @@ class MainWindow(_Base):
     def _open_settings(self):
         from treeforge.gui.components.settings_dialog import SettingsDialog
         SettingsDialog(self)
+
+    def refresh_settings(self) -> None:
+        if hasattr(self, "generator_tab"):
+            self.generator_tab.refresh_tab_settings()
+        if hasattr(self, "prompt_tab"):
+            self.prompt_tab.refresh_tab_settings()
+

@@ -49,7 +49,7 @@ class TemplatesTab(ctk.CTkFrame):
         )
         self.preview_box = ctk.CTkTextbox(
             self, font=("Consolas", 12), state="disabled",
-            fg_color=("gray96", "gray18")
+            fg_color=("white", "gray16")
         )
         self.preview_box.grid(row=1, column=0, padx=12, pady=(24, 6), sticky="nsew")
 
@@ -64,11 +64,13 @@ class TemplatesTab(ctk.CTkFrame):
             row=0, column=1, sticky="w", padx=(0, 12)
         )
 
-        ctk.CTkButton(
+        self._btn_generate = ctk.CTkButton(
             bottom, text="Générer ce template", height=36,
             fg_color="#2e7d32", hover_color="#1b5e20",
             command=self._generate
-        ).grid(row=0, column=2)
+        )
+        self._btn_generate.grid(row=0, column=2)
+
 
     def _refresh_templates(self):
         self._templates = list_templates()
@@ -116,6 +118,7 @@ class TemplatesTab(ctk.CTkFrame):
 
         self._update_status(f"Génération du template {name}…")
         logger.info(f"Template {name} → {dest}")
+        self._btn_generate.configure(state="disabled")
 
         def _run():
             nb_dirs, nb_files, errors = generate(pr, dest, content,
@@ -124,11 +127,13 @@ class TemplatesTab(ctk.CTkFrame):
 
         threading.Thread(target=_run, daemon=True).start()
 
+
     def _on_done(self, nb_dirs, nb_files, errors, dest, name):
+        self._btn_generate.configure(state="normal")
         if errors:
             self._update_status(f"⚠️ {name} terminé avec {len(errors)} erreur(s)")
             messagebox.showwarning("Terminé avec erreurs", "\n".join(errors[:5]))
         else:
             self._update_status(f"✅ Template {name} — {nb_dirs} dossiers, {nb_files} fichiers → {dest}")
             logger.info(f"✅ Template {name} généré avec succès")
-            messagebox.showinfo("Succès ✅", f"Template « {name} » créé dans :\n{dest}")
+            messagebox.showinfo("Succès ✅", f"Template « {name} » créé dans :\n{dest}")

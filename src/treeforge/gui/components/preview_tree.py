@@ -27,7 +27,8 @@ def _colors() -> dict:
         "select_bg":   "#313244" if dark else "#c8d8f0",
         "border":      "#45475a" if dark else "#c0c0cc",
         "scrollbar":   "#585b70" if dark else "#b0b0be",
-        "count":       "#6c7086" if dark else "#9090a0",
+        "count":       "#6c7086" if dark else "#5c5c66",
+        "excluded":    "#6c7086" if dark else "#6b6b72",
     }
 
 
@@ -97,23 +98,29 @@ class PreviewTree(ctk.CTkFrame):
         self._tree.grid(row=0, column=0, sticky="nsew")
 
         # Scrollbar verticale
-        vsb = ttk.Scrollbar(tree_frame, orient="vertical",
-                            command=self._tree.yview)
+        vsb = ctk.CTkScrollbar(tree_frame, orientation="vertical",
+                               command=self._tree.yview)
         vsb.grid(row=0, column=1, sticky="ns")
         self._tree.configure(yscrollcommand=vsb.set)
 
         # Scrollbar horizontale
-        hsb = ttk.Scrollbar(self, orient="horizontal",
-                            command=self._tree.xview)
+        hsb = ctk.CTkScrollbar(self, orientation="horizontal",
+                               command=self._tree.xview)
         hsb.grid(row=2, column=0, sticky="ew", padx=(8, 0))
         self._tree.configure(xscrollcommand=hsb.set)
 
         # Tags de couleur
         self._tree.tag_configure("dir",  foreground=self._c["fg_dir"])
         self._tree.tag_configure("file", foreground=self._c["fg_file"])
+        self._tree.tag_configure("excluded", foreground=self._c["excluded"])
 
         # Double-clic → expand/collapse les dossiers
         self._tree.bind("<Double-1>", self._on_double_click)
+        # Espace → exclure / inclure l'élément
+        self._tree.bind("<space>", self._on_space_toggle)
+        # Clic droit → menu contextuel
+        self._tree.bind("<Button-3>", self._on_right_click)
+
 
     # ── API publique ──────────────────────────────────────────────────────────
 
@@ -122,6 +129,7 @@ class PreviewTree(ctk.CTkFrame):
         self._tree.delete(*self._tree.get_children())
         self._nb_dirs  = 0
         self._nb_files = 0
+        self._item_to_node = {}
 
         for node in nodes:
             self._insert_node("", node)
@@ -136,7 +144,9 @@ class PreviewTree(ctk.CTkFrame):
         self._tree.delete(*self._tree.get_children())
         self._nb_dirs  = 0
         self._nb_files = 0
+        self._item_to_node = {}
         self._stats_var.set("")
+
 
     def expand_all(self) -> None:
         self._set_open_all(True)
@@ -164,6 +174,7 @@ class PreviewTree(ctk.CTkFrame):
             open=False,
             tags=(tag,),
         )
+        self._item_to_node[item_id] = node
 
         for child in node.children:
             self._insert_node(item_id, child)
@@ -171,8 +182,17 @@ class PreviewTree(ctk.CTkFrame):
         return item_id
 
     def _update_stats(self) -> None:
+        # Re-calculer les dossiers et fichiers inclus
+        nb_dirs = 0
+        nb_files = 0
+        for node in self._item_to_node.values():
+            if not node.excluded:
+                if node.is_dir:
+                    nb_dirs += 1
+                else:
+                    nb_files += 1
         self._stats_var.set(
-            f"  📁 {self._nb_dirs} dossier(s)   📄 {self._nb_files} fichier(s)"
+            f"  📁 {nb_dirs} dossier(s)   📄 {nb_files} fichier(s) à générer"
         )
 
     def _on_double_click(self, event) -> None:
@@ -181,6 +201,56 @@ class PreviewTree(ctk.CTkFrame):
             return
         is_open = self._tree.item(item, "open")
         self._tree.item(item, open=not is_open)
+
+    def _on_space_toggle(self, event) -> str:
+        item = self._tree.focus()
+        if not item:
+            return "break"
+        node = self._item_to_node.get(item)
+        if not node:
+            return "break"
+        new_state = not node.excluded
+        self._toggle_node_exclusion(item, node, new_state)
+        self._update_stats()
+        return "break"
+
+    def _on_right_click(self, event) -> None:
+        iid = self._tree.identify_row(event.y)
+        if not iid:
+            return
+        self._tree.focus(iid)
+        self._tree.selection_set(iid)
+
+        node = self._item_to_node.get(iid)
+        if not node:
+            return
+
+        menu = tk.Menu(self, tearoff=0)
+        label = "Inclure cet élément" if node.excluded else "Exclure cet élément"
+        menu.add_command(label=label, command=lambda: self._toggle_item_from_menu(iid, node))
+        menu.post(event.x_root, event.y_root)
+
+    def _toggle_item_from_menu(self, iid: str, node: TreeNode) -> None:
+        new_state = not node.excluded
+        self._toggle_node_exclusion(iid, node, new_state)
+        self._update_stats()
+
+    def _toggle_node_exclusion(self, item_id: str, node: TreeNode, excluded: bool) -> None:
+        node.excluded = excluded
+        
+        tags = list(self._tree.item(item_id, "tags"))
+        if excluded:
+            if "excluded" not in tags:
+                tags.append("excluded")
+        else:
+            if "excluded" in tags:
+                tags.remove("excluded")
+        self._tree.item(item_id, tags=tuple(tags))
+        
+        for child_id in self._tree.get_children(item_id):
+            child_node = self._item_to_node.get(child_id)
+            if child_node:
+                self._toggle_node_exclusion(child_id, child_node, excluded)
 
     def _set_open_all(self, state: bool) -> None:
         def walk(item):

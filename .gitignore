@@ -4,6 +4,7 @@ TForge_ENV_py312/
 .venv/
 venv/
 env/
+TF_venv/
 
 # Python
 __pycache__/
@@ -18,6 +19,9 @@ build/
 *.spec
 dist/
 build/
+
+# Assets temporaires
+assets/
 
 # Recaps générés
 recaps/
@@ -38,3 +42,6 @@ desktop.ini
 .idea/
 *.suo
 *.user
+
+# Temp / Backup copies
+* copy.json

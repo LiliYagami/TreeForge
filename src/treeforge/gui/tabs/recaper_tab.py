@@ -28,8 +28,10 @@ class RecaperTab(ctk.CTkFrame):
 
         ctk.CTkLabel(top, text="Dossier racine :").grid(row=0, column=0, padx=(0, 8))
         self.root_var = ctk.StringVar(value="")
-        ctk.CTkEntry(top, textvariable=self.root_var, placeholder_text="(non défini)",
-                     state="readonly").grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        self.root_entry = ctk.CTkEntry(top, textvariable=self.root_var, placeholder_text="(non défini)",
+                     state="normal")
+        self.root_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        self.root_entry.bind("<Key>", lambda e: "break")
         ctk.CTkButton(top, text="Parcourir…", width=100,
                       command=self._browse_root).grid(row=0, column=2)
 
@@ -40,9 +42,11 @@ class RecaperTab(ctk.CTkFrame):
 
         ctk.CTkLabel(mid, text="Dossier de sortie :").grid(row=0, column=0, padx=(0, 8))
         self.out_var = ctk.StringVar(value="")
-        ctk.CTkEntry(mid, textvariable=self.out_var,
+        self.out_entry = ctk.CTkEntry(mid, textvariable=self.out_var,
                      placeholder_text="(par défaut : <racine>/recaps/)",
-                     state="readonly").grid(row=0, column=1, sticky="ew", padx=(0, 8))
+                     state="normal")
+        self.out_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8))
+        self.out_entry.bind("<Key>", lambda e: "break")
         ctk.CTkButton(mid, text="Changer…", width=100,
                       command=self._browse_output).grid(row=0, column=2)
 
@@ -58,16 +62,21 @@ class RecaperTab(ctk.CTkFrame):
         ctk.CTkButton(excl_header, text="Réinitialiser", width=100,
                       command=self._reset_exclusions).pack(side="right")
 
-        self.excl_box = ctk.CTkTextbox(excl_frame, font=("Consolas", 12), height=120)
+        self.excl_box = ctk.CTkTextbox(
+            excl_frame, font=("Consolas", 12), height=120,
+            fg_color=("white", "gray16"),
+        )
         self.excl_box.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
         self._reset_exclusions()
 
         # ── Bouton Recaper ───────────────────────────────────────────────────
-        ctk.CTkButton(
+        self._btn_recap = ctk.CTkButton(
             self, text="Générer le recap .txt", height=36,
             fg_color="#1565c0", hover_color="#0d47a1",
             command=self._run_recap
-        ).grid(row=3, column=0, padx=12, pady=(6, 12), sticky="ew")
+        )
+        self._btn_recap.grid(row=3, column=0, padx=12, pady=(6, 12), sticky="ew")
+
 
     def _browse_root(self):
         path = filedialog.askdirectory(title="Sélectionner le dossier racine du projet")
@@ -99,6 +108,7 @@ class RecaperTab(ctk.CTkFrame):
 
         self._update_status("Génération du recap en cours…")
         logger.info(f"Recaper → {root}")
+        self._btn_recap.configure(state="disabled")
 
         def _run():
             try:
@@ -113,7 +123,9 @@ class RecaperTab(ctk.CTkFrame):
 
         threading.Thread(target=_run, daemon=True).start()
 
+
     def _on_done(self, out_path: str):
+        self._btn_recap.configure(state="normal")
         self._update_status(f"✅ Recap généré → {out_path}")
         logger.info(f"✅ Recap généré : {out_path}")
         messagebox.showinfo(
@@ -122,6 +134,7 @@ class RecaperTab(ctk.CTkFrame):
         )
 
     def _on_error(self, msg: str):
+        self._btn_recap.configure(state="normal")
         self._update_status(f"❌ Erreur : {msg}")
         logger.error(f"Erreur Recaper : {msg}")
-        messagebox.showerror("Erreur", msg)
+        messagebox.showerror("Erreur", msg)

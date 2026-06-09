@@ -44,6 +44,8 @@ def generate(
     errors: list[str] = []
 
     def _create(node: TreeNode, parent: Path) -> None:
+        if node.excluded:
+            return
         nonlocal nb_dirs, nb_files
         path = parent / node.name
 

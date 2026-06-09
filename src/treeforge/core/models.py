@@ -11,6 +11,7 @@ class TreeNode:
     children: list["TreeNode"] = field(default_factory=list)
     content: str = ""
     depth: int = 0
+    excluded: bool = False
 
     def __repr__(self) -> str:
         kind = "📁" if self.is_dir else "📄"

@@ -36,7 +36,7 @@ TEXT_EXTENSIONS: set[str] = {
     # Langages principaux
     ".py", ".js", ".ts", ".jsx", ".tsx",
     ".html", ".css", ".scss", ".sass",
-    ".php", ".rb", ".go", ".rs", ".c", ".cpp", ".h",
+    ".php", ".rb", ".go", ".rs", ".c", ".cpp", ".h",".java",
     # Config / Data
     ".json", ".xml", ".yml", ".yaml", ".toml",
     ".ini", ".cfg", ".env",
@@ -58,7 +58,7 @@ TEXT_EXTENSIONS: set[str] = {
 DEFAULT_EXCLUDE_DIRS: set[str] = {
     "recaps",
     "__pycache__", "node_modules", ".git", ".venv", "venv",
-    "TForge_ENV", "TForge_ENV_py312", "dist", "build",
+    "TForge_ENV", "TForge_ENV_py312","TF_venv", "dist", "build",
     ".mypy_cache", ".pytest_cache", ".idea", ".vscode",
 }
 

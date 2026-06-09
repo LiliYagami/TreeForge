@@ -107,3 +107,52 @@ def save_prefs(prefs: dict[str, Any]) -> bool:
     except Exception as e:
         print(f"[helpers] Erreur lors de la sauvegarde de user_prefs.json : {e}")
         return False
+
+
+# ── Boilerplates par défaut ───────────────────────────────────────────────────
+
+DEFAULT_BOILERPLATE: dict[str, str] = {
+    ".html": "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Document</title>\n</head>\n<body>\n\n</body>\n</html>\n",
+    ".css":  "/* styles */\n",
+    ".js":   "// script\n",
+    ".py":   "# -*- coding: utf-8 -*-\n",
+    ".ts":   "// TypeScript\n",
+    ".jsx":  "// React component\nexport default function Component() {\n  return <div></div>;\n}\n",
+    ".tsx":  "// React + TypeScript\nexport default function Component() {\n  return <div></div>;\n}\n",
+    ".json": "{}\n",
+    ".md":   "# Titre\n",
+    ".gitignore": "__pycache__/\n*.pyc\nnode_modules/\n.env\n",
+    ".env":  "# Variables d'environnement\n",
+    ".sql":  "-- SQL\n",
+}
+
+
+def load_boilerplates() -> dict[str, str]:
+    """Charge les boilerplates depuis resources/stock/boilerplates.json"""
+    try:
+        boilerplates_file = RESOURCES_DIR / "boilerplates.json"
+        if boilerplates_file.exists():
+            return json.loads(boilerplates_file.read_text(encoding="utf-8"))
+        else:
+            # Créer le fichier par défaut pour que l'utilisateur puisse le modifier
+            save_boilerplates(DEFAULT_BOILERPLATE)
+            return DEFAULT_BOILERPLATE.copy()
+    except Exception as e:
+        print(f"[helpers] Erreur lors du chargement de boilerplates.json : {e}")
+        return DEFAULT_BOILERPLATE.copy()
+
+
+def save_boilerplates(boilerplates: dict[str, str]) -> bool:
+    """Sauvegarde les boilerplates dans resources/stock/boilerplates.json"""
+    try:
+        RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
+        boilerplates_file = RESOURCES_DIR / "boilerplates.json"
+        boilerplates_file.write_text(
+            json.dumps(boilerplates, indent=2, ensure_ascii=False),
+            encoding="utf-8"
+        )
+        return True
+    except Exception as e:
+        print(f"[helpers] Erreur lors de la sauvegarde de boilerplates.json : {e}")
+        return False
+
