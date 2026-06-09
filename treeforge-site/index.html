@@ -507,57 +507,75 @@
 ══════════════════════════════════════════════════════════ -->
 <section id="releases">
   <div class="section-inner">
-    <div class="section-label">Releases</div>
-    <h2>Versions &amp; Roadmap.</h2>
-    <p class="section-sub">Suivi des versions publiées et des fonctionnalités à venir.</p>
+    <div class="section-label">Releases &amp; Roadmap</div>
+    <h2>Historique &amp; Évolutions.</h2>
+    <p class="section-sub">Suivi des versions passées et aperçu de la future version en cours de développement.</p>
 
-    <div class="roadmap reveal">
-      <div class="rm-pill rm-done"><span class="rm-status">✅ Stable</span><span class="rm-label"><strong>v3.0.0</strong> — Générateur · Templates · Recaper · RevRecaper</span></div>
-      <div class="rm-pill rm-next"><span class="rm-status">🔵 Prévu</span><span class="rm-label"><strong>v1.1</strong> — Thème clair · Historique · Export PDF</span></div>
-      <div class="rm-pill rm-later"><span class="rm-status">💭 Futur</span><span class="rm-label"><strong>v2.0</strong> — Éditeur visuel · Plugin VS Code · Multi-plateforme</span></div>
+    <div class="roadmap reveal visible">
+      <div class="rm-pill rm-done"><span class="rm-status">✅ Stable</span><span class="rm-label"><strong>v3.0.0</strong> — Version de référence actuelle (RevRecaper, Prompts IA)</span></div>
+      <div class="rm-pill rm-next"><span class="rm-status">🔵 Prévu</span><span class="rm-label"><strong>v4.0.0</strong> — didactique de prise en main, Hub La Voie du Code</span></div>
     </div>
 
     <div class="releases-timeline">
-      <!-- v3.0.0 -->
-      <div class="release-item reveal">
+      <!-- v4.0.0 (Prochaine) -->
+      <div class="release-item reveal visible">
+        <div class="release-dot dot-planned">🔵</div>
+        <div class="release-card release-planned">
+          <div class="release-header"><div><span class="release-version">v4.0.0</span><span class="release-badge badge-planned">🔵 En développement (TreeForge C)</span></div><span class="release-date">Été 2026</span></div>
+          <p class="release-desc">Version majeure en cours d'intégration et de stabilisation. Focus sur l'apprentissage et l'accompagnement des développeurs.</p>
+          <div class="changelog">
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">didactique de prise en main — Tutoriel pas-à-pas interactif intégré pour démarrer sans friction.</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Hub d'apprentissage "La Voie du Code" — Module interactif d'apprentissage des bases (HTML5, CSS4, JS, PHP).</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Refonte et optimisation du moteur (vitesse accrue pour les grands projets).</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- v3.0.0 (Actuelle Stable) -->
+      <div class="release-item reveal visible">
         <div class="release-dot dot-stable">🌲</div>
         <div class="release-card release-stable">
           <div class="release-header"><div><span class="release-version">v3.0.0</span><span class="release-badge badge-stable">✅ Stable</span></div><span class="release-date">Mai 2026</span></div>
-          <p class="release-desc">Première version publique. Cycle complet : génération depuis texte, templates, export projet et restauration.</p>
+          <p class="release-desc">Version stable actuelle. Cycle complet : génération depuis texte, templates, export IA et restauration totale.</p>
           <div class="changelog">
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Onglet Générateur — 4 formats, 3 modes parsing, 3 modes contenu</span></div>
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">7 Templates intégrés (Django, React, Vue, Node.js, HTML, Python, MySQL)</span></div>
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Recaper — export projet complet en .txt compatible IA</span></div>
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">RevRecaper — restauration depuis fichier recap modifié</span></div>
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Drag & Drop fichiers + clic droit contextuel</span></div>
-            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Prompts IA intégrés pour 6 types de projets</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">RevRecaper — Restauration de projets complets depuis un fichier recap modifié par une IA.</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Sélecteur de Prompts IA — 9 modèles de prompts intégrés (React, Django, MySQL, etc.).</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Console de logs asynchrone &amp; Support du Glisser-Déposer (Drag &amp; Drop).</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Aperçu interactif avant génération avec cases à cocher.</span></div>
           </div>
           <div class="release-downloads">
-            <a href="https://github.com/LiliYagami/TreeForge/releases/download/v3.0.0/TreeForge.exe" class="dl-link dl-main"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>TreeForge.exe</a>
+            <a href="https://github.com/LiliYagami/TreeForge/releases/download/v3.0.0/TreeForge.exe" class="dl-link dl-main"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>TreeForge.exe</a>
             <a href="https://github.com/LiliYagami/TreeForge/archive/refs/tags/v3.0.0.zip" class="dl-link">📦 .zip</a>
             <a href="https://github.com/LiliYagami/TreeForge/archive/refs/tags/v3.0.0.tar.gz" class="dl-link">📦 .tar.gz</a>
-            <a href="https://github.com/LiliYagami/TreeForge/tree/main" target="_blank" class="dl-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>GitHub</a>
+            <a href="https://github.com/LiliYagami/TreeForge/tree/main" target="_blank" class="dl-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg>GitHub</a>
           </div>
         </div>
       </div>
 
-      <!-- v1.1 -->
-      <div class="release-item reveal">
-        <div class="release-dot dot-planned">🔵</div>
-        <div class="release-card release-planned">
-          <div class="release-header"><div><span class="release-version">v1.1</span><span class="release-badge badge-planned">🔵 En développement</span></div><span class="release-date">Été 2026</span></div>
-          <p class="release-desc">Améliorations de confort et nouvelles fonctionnalités.</p>
-          <div class="planned-chips"><span class="chip">☀️ Thème clair</span><span class="chip">🕐 Historique des générations</span><span class="chip">📄 Export arborescence PDF</span><span class="chip">🔗 Lien vers site web intégré</span><span class="chip">🌍 Interface EN / FR</span></div>
+      <!-- v2.0.0 (Passée) -->
+      <div class="release-item reveal visible">
+        <div class="release-dot dot-stable">📦</div>
+        <div class="release-card release-planned" style="opacity: 0.85;">
+          <div class="release-header"><div><span class="release-version">v2.0.0</span><span class="release-badge" style="background:var(--bg-3);color:var(--text-dim)">✓ Terminée</span></div><span class="release-date">Février 2026</span></div>
+          <p class="release-desc">Introduction du gestionnaire de modèles (templates) et personnalisation des contenus de démarrage.</p>
+          <div class="changelog">
+            <div class="cl-item"><span class="cl-tag cl-new" style="background:#555">NEW</span><span class="cl-text">7 Templates de projets pré-intégrés (React, Django, HTML statique, etc.).</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new" style="background:#555">NEW</span><span class="cl-text">Éditeur graphique de Boilerplates dans les paramètres.</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new" style="background:#555">NEW</span><span class="cl-text">Module Recaper — export complet du code en un seul fichier .txt pour IA.</span></div>
+          </div>
         </div>
       </div>
 
-      <!-- v2.0 -->
-      <div class="release-item reveal">
-        <div class="release-dot dot-planned">💭</div>
-        <div class="release-card release-planned">
-          <div class="release-header"><div><span class="release-version">v2.0</span><span class="release-badge badge-future">💭 Roadmap</span></div><span class="release-date">2027</span></div>
-          <p class="release-desc">Refonte majeure avec éditeur visuel et support multi-plateforme.</p>
-          <div class="planned-chips"><span class="chip">🖱️ Éditeur visuel drag & drop</span><span class="chip">🧩 Plugin VS Code</span><span class="chip">🍎 Support macOS / Linux</span><span class="chip">☁️ Sync cloud templates</span><span class="chip">🤖 Intégration IA directe</span></div>
+      <!-- v1.0.0 (Historique) -->
+      <div class="release-item reveal visible">
+        <div class="release-dot dot-stable">🚀</div>
+        <div class="release-card release-planned" style="opacity: 0.7;">
+          <div class="release-header"><div><span class="release-version">v1.0.0</span><span class="release-badge" style="background:var(--bg-3);color:var(--text-dim)">✓ Terminée</span></div><span class="release-date">Novembre 2025</span></div>
+          <p class="release-desc">Version initiale historique. Générateur d'arborescences de fichiers textuelles en dossiers physiques Windows.</p>
+          <div class="changelog">
+            <div class="cl-item"><span class="cl-tag cl-new" style="background:#555">NEW</span><span class="cl-text">Parseur intelligent multi-formats (Unicode, Windows tree, indentation).</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new" style="background:#555">NEW</span><span class="cl-text">Génération physique ultra-rapide sur disque de dossiers et fichiers.</span></div>
+          </div>
         </div>
       </div>
     </div>
