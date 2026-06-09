@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Tronc -->
+  <rect x="14" y="22" width="4" height="7" rx="1" fill="#4CAF50"/>
+  <!-- Feuillage -->
+  <polygon points="16,2 26,16 6,16" fill="#2e7d32"/>
+  <polygon points="16,7 24,19 8,19" fill="#388E3C"/>
+  <polygon points="16,12 23,22 9,22" fill="#4CAF50"/>
+  <!-- Connecteurs ├── (symboliques) -->
+  <rect x="3" y="10" width="5" height="1.2" rx=".6" fill="#81c784" opacity=".7"/>
+  <rect x="3" y="14" width="5" height="1.2" rx=".6" fill="#81c784" opacity=".5"/>
+</svg>

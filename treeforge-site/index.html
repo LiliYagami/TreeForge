@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TreeForge — Générateur d'arborescences</title>
+  <meta name="description" content="Transformez une arborescence texte en projet réel en un clic. TreeForge est le pont entre l'IA et votre système de fichiers Windows." />
+  <meta property="og:title" content="TreeForge — think smart, work fast" />
+  <meta property="og:description" content="Collez une arborescence — générez un projet. Gratuitement." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAV
+══════════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="logo-icon">🌲</span>
+      <span class="logo-text">TreeForge</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Fonctionnalités</a></li>
+      <li><a href="#how">Comment ça marche</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a href="#releases">Releases</a></li>
+      <li><a href="#download">Télécharger</a></li>
+      <li><a href="https://github.com/LiliYagami/TreeForge" target="_blank" class="nav-github">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        GitHub
+      </a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="grid-lines"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      v3.0.0 — Windows — Gratuit
+    </div>
+
+    <h1 class="hero-title">
+      Pensez en arbre.<br>
+      <span class="accent">Construisez en secondes.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Demandez à une IA de générer une arborescence. Collez-la dans TreeForge.<br>
+      Votre projet existe. C'est tout.
+    </p>
+
+    <div class="hero-terminal">
+      <div class="terminal-bar">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="terminal-title">ChatGPT → TreeForge → Votre disque</span>
+      </div>
+      <div class="terminal-body">
+        <div class="t-line dim">Vous demandez à l'IA :</div>
+        <div class="t-line prompt">"Génère une arborescence Django avec apps/, config/..."</div>
+        <div class="t-line dim" style="margin-top:1rem">L'IA répond :</div>
+        <div class="t-line tree">mon-projet/<br>
+├── manage.py<br>
+├── requirements.txt<br>
+├── config/<br>
+│   ├── settings.py<br>
+│   └── urls.py<br>
+└── apps/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;└── core/<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── models.py</div>
+        <div class="t-line dim" style="margin-top:1rem">Vous collez dans TreeForge → <span class="ok">Générer structure</span></div>
+        <div class="t-line success">✅ 3 dossiers, 4 fichiers créés en 0.08s</div>
+      </div>
+    </div>
+
+    <div class="hero-actions">
+      <a href="https://github.com/LiliYagami/ComWR/releases/download/v3.0.0/TreeForge.exe"
+         class="btn btn-primary" id="dl-hero">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Télécharger .exe — v3.0.0
+      </a>
+      <a href="https://github.com/LiliYagami/ComWR" target="_blank" class="btn btn-ghost">
+        Voir sur GitHub →
+      </a>
+    </div>
+
+    <p class="hero-note">Windows 10/11 · 64-bit · ~12 Mo · Aucune installation requise</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════════════════════ -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">Fonctionnalités</div>
+    <h2>Quatre outils, un workflow.</h2>
+    <p class="section-sub">TreeForge couvre tout le cycle de vie d'un projet — de la création à la sauvegarde en passant par la restauration.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Générateur</h3>
+        <p>Collez n'importe quelle arborescence texte (unicode ├──, indentation, JSON) et générez tous les fichiers et dossiers sur disque.</p>
+        <ul class="feature-list">
+          <li>3 modes de parsing (Strict · Souple · Confiant)</li>
+          <li>Contenu Vide, Minimal ou Boilerplate</li>
+          <li>Drag & Drop .txt / .json</li>
+          <li>Aperçu avant génération</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <h3>Templates</h3>
+        <p>7 templates de projets prêts à l'emploi avec structure complète et contenu de démarrage.</p>
+        <ul class="feature-list">
+          <li>Django · React/Vite · Vue/Vite</li>
+          <li>Node.js API · HTML statique</li>
+          <li>Python Package · MySQL</li>
+          <li>Contenu Boilerplate inclus</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Recaper</h3>
+        <p>Exportez l'intégralité d'un projet existant en un seul fichier .txt — arborescence + contenu de chaque fichier.</p>
+        <ul class="feature-list">
+          <li>Compatible IA (Claude, ChatGPT, Gemini)</li>
+          <li>Dossiers exclus configurables</li>
+          <li>30+ types de fichiers supportés</li>
+          <li>Encodage automatique (UTF-8/16/latin)</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-card--accent">
+        <div class="feature-icon">🔁</div>
+        <h3>RevRecaper</h3>
+        <p>Restaurez un projet complet depuis un fichier recap modifié par une IA. Le cycle complet en quelques clics.</p>
+        <ul class="feature-list">
+          <li>Recap → IA modifie → Restauration</li>
+          <li>Protection path traversal</li>
+          <li>Option écraser / conserver</li>
+          <li>Rapport détaillé</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     HOW IT WORKS
+══════════════════════════════════════════════════════════ -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">Comment ça marche</div>
+    <h2>De l'idée au projet en 3 étapes.</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Décrivez votre projet à une IA</h3>
+          <p>Utilisez le Prompt IA intégré dans TreeForge. Copiez-le dans ChatGPT, Claude ou Gemini. L'IA génère une arborescence structurée.</p>
+          <div class="step-code">
+            <span class="dim">Prompt :</span><br>
+            Génère une arborescence React + Vite<br>
+            avec composants organisés par feature…<br>
+            <span class="dim">Format : unicode ├──</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-arrow">↓</div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Collez dans TreeForge</h3>
+          <p>Glissez-déposez un fichier .txt ou collez directement. TreeForge détecte automatiquement le format. Cliquez sur Analyser pour prévisualiser.</p>
+          <div class="step-code">
+            <span class="ok">Format détecté : Unicode ├──</span><br>
+            <span class="dim">→ 5 dossiers · 12 fichiers</span><br>
+            <span class="dim">→ Prêt à générer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-arrow">↓</div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Générez et travaillez</h3>
+          <p>Choisissez la destination, le mode de contenu, cliquez sur Générer. Ouvrez VS Code. Votre projet est prêt.</p>
+          <div class="step-code">
+            <span class="success">✅ 5 dossiers créés</span><br>
+            <span class="success">✅ 12 fichiers créés</span><br>
+            <span class="dim">→ 0.12s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="workflow-bonus">
+      <div class="bonus-label">Workflow avancé — Recaper + IA + RevRecaper</div>
+      <div class="workflow-steps">
+        <div class="ws">📁 Projet existant</div>
+        <div class="ws-arrow">→</div>
+        <div class="ws">📄 recap.txt<br><span class="dim">Recaper</span></div>
+        <div class="ws-arrow">→</div>
+        <div class="ws">🤖 IA modifie<br><span class="dim">Claude / GPT</span></div>
+        <div class="ws-arrow">→</div>
+        <div class="ws">📁 Projet mis à jour<br><span class="dim">RevRecaper</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     TIPS TICKER
+══════════════════════════════════════════════════════════ -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker">
+    <span>💡 Mode Boilerplate crée chaque fichier avec un contenu de démarrage</span>
+    <span>💡 Drag & Drop un .txt directement dans la zone de saisie</span>
+    <span>💡 Recaper → IA → RevRecaper — modifiez un projet entier sans ouvrir un seul fichier</span>
+    <span>💡 7 templates prêts : Django, React, Vue, Node.js, HTML, Python, MySQL</span>
+    <span>💡 Format Auto détecte unicode ├──, Windows tree, et indentation pure</span>
+    <span>💡 Aperçu avant génération — zéro surprise</span>
+    <span>💡 Mode Strict bloque les erreurs · Mode Confiant les corrige</span>
+    <span>💡 Mode Boilerplate crée chaque fichier avec un contenu de démarrage</span>
+    <span>💡 Drag & Drop un .txt directement dans la zone de saisie</span>
+    <span>💡 Recaper → IA → RevRecaper — modifiez un projet entier sans ouvrir un seul fichier</span>
+    <span>💡 7 templates prêts : Django, React, Vue, Node.js, HTML, Python, MySQL</span>
+    <span>💡 Format Auto détecte unicode ├──, Windows tree, et indentation pure</span>
+    <span>💡 Aperçu avant génération — zéro surprise</span>
+    <span>💡 Mode Strict bloque les erreurs · Mode Confiant les corrige</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     DOWNLOAD
+══════════════════════════════════════════════════════════ -->
+<section id="download">
+  <div class="section-inner">
+    <div class="download-box">
+      <div class="download-glow"></div>
+      <div class="download-content">
+        <div class="section-label" style="justify-content:center">Télécharger</div>
+        <h2>TreeForge v3.0.0</h2>
+        <p>Gratuit. Aucune installation. Aucune inscription. Ouvrez et utilisez.</p>
+
+        <div class="dl-options">
+          <a href="https://github.com/LiliYagami/ComWR/releases/download/v3.0.0/TreeForge.exe"
+             class="btn btn-primary btn-large" id="dl-main">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            TreeForge.exe — Windows
+            <span class="btn-note">~12 Mo · Exécutable direct</span>
+          </a>
+
+          <div class="dl-secondary">
+            <a href="https://github.com/LiliYagami/ComWR/archive/refs/tags/v3.0.0.zip"
+               class="btn btn-ghost btn-sm">
+              📦 Source .zip
+            </a>
+            <a href="https://github.com/LiliYagami/ComWR/archive/refs/tags/v3.0.0.tar.gz"
+               class="btn btn-ghost btn-sm">
+              📦 Source .tar.gz
+            </a>
+            <a href="https://github.com/LiliYagami/ComWR" target="_blank"
+               class="btn btn-ghost btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+
+        <div class="dl-sys">
+          <span>🖥️ Windows 10 / 11</span>
+          <span>•</span>
+          <span>⚙️ 64-bit</span>
+          <span>•</span>
+          <span>🐍 Python 3.10+ (inclus dans l'exe)</span>
+          <span>•</span>
+          <span>🆓 Open Source</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION DOCS (fusionnée depuis inde.html)
+══════════════════════════════════════════════════════════ -->
+<section id="docs">
+  <div class="section-inner">
+    <div class="section-label">Documentation</div>
+    <h2>Tout ce qu'il faut savoir.</h2>
+    <p class="section-sub">Cinq blocs pour maîtriser TreeForge — du démarrage aux cas avancés.</p>
+
+    <div class="accordion">
+      <!-- 1 — Démarrage rapide -->
+      <div class="acc-item open" data-acc>
+        <div class="acc-header">
+          <div class="acc-title">
+            <span class="acc-icon-left">🚀</span>
+            Démarrage rapide
+          </div>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <div class="quick-steps">
+              <div class="qs">
+                <div class="qs-num">01</div>
+                <div class="qs-title">Téléchargez</div>
+                <div class="qs-desc">Un seul <span class="accent">.exe</span> Windows. Aucune installation, aucune dépendance Python requise.</div>
+              </div>
+              <div class="qs">
+                <div class="qs-num">02</div>
+                <div class="qs-title">Collez</div>
+                <div class="qs-desc">Glissez un <span class="accent">.txt</span> ou <span class="accent">.json</span> dans la zone, ou collez directement depuis une IA ou GitHub.</div>
+              </div>
+              <div class="qs">
+                <div class="qs-num">03</div>
+                <div class="qs-title">Analysez</div>
+                <div class="qs-desc">Cliquez sur <span class="accent">Analyser / Aperçu</span> pour vérifier la structure avant toute création de fichier.</div>
+              </div>
+              <div class="qs">
+                <div class="qs-num">04</div>
+                <div class="qs-title">Générez</div>
+                <div class="qs-desc">Choisissez la destination et cliquez <span class="accent">Générer</span>. Tous les dossiers et fichiers sont créés instantanément.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 — Formats d'entrée -->
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <div class="acc-title">
+            <span class="acc-icon-left">📋</span>
+            Formats d'entrée supportés
+          </div>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <table class="formats-table">
+              <thead>
+                <tr><th>Format</th><th>Exemple</th><th>Source typique</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="format-badge">Unicode ├──</span></td><td style="font-family:monospace;color:var(--green-text)">├── src/<br>│&nbsp;&nbsp; └── main.py</td><td>ChatGPT · Claude · Gemini · GitHub README</td></tr>
+                <tr><td><span class="format-badge">Windows tree</span></td><td style="font-family:monospace;color:var(--green-text)">\\___ src<br>&nbsp;&nbsp;&nbsp;&nbsp;\\___ main.py</td><td>Commande <code>tree /f</code> dans cmd.exe</td></tr>
+                <tr><td><span class="format-badge">Indentation</span></td><td style="font-family:monospace;color:var(--green-text)">src/<br>&nbsp;&nbsp;main.py<br>&nbsp;&nbsp;config.py</td><td>Édition manuelle · Fichiers .txt custom</td></tr>
+                <tr><td><span class="format-badge">JSON</span></td><td style="font-family:monospace;color:var(--green-text)">[{"name":"src","is_dir":true,"children":[...]}]</td><td>Templates TreeForge · Export JSON</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:.83rem;color:var(--text-dim);margin-top:14px;">💡 Le mode <strong>Auto</strong> détecte le format automatiquement. Sélectionnez manuellement si la détection échoue.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 — Modes de parsing -->
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <div class="acc-title"><span class="acc-icon-left">⚙️</span> Modes de parsing</div>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <div class="modes-grid">
+              <div class="mode-card"><span class="mode-tag tag-strict">STRICT</span><h3>Strict</h3><p>Bloque et signale toute incohérence. Zéro tolérance.</p></div>
+              <div class="mode-card mode-highlight"><span class="mode-tag tag-souple">SOUPLE</span><h3>Souple</h3><p>Corrige automatiquement les erreurs mineures. Recommandé.</p></div>
+              <div class="mode-card"><span class="mode-tag tag-confiant">CONFIANT</span><h3>Confiant</h3><p>Génère sans vérification. Pour les experts.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 — Modes de contenu -->
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <div class="acc-title"><span class="acc-icon-left">📄</span> Modes de contenu des fichiers</div>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <div class="modes-grid">
+              <div class="mode-card"><span class="mode-tag tag-vide">VIDE</span><h3>Vide</h3><p>Fichiers vides (0 octet).</p></div>
+              <div class="mode-card mode-highlight"><span class="mode-tag tag-minimal">MINIMAL</span><h3>Minimal</h3><p>Ajoute un en-tête commenté (nom, date, chemin).</p></div>
+              <div class="mode-card"><span class="mode-tag tag-boilerplate">BOILERPLATE</span><h3>Boilerplate</h3><p>Contenu de démarrage par type de fichier.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 — FAQ -->
+      <div class="acc-item" data-acc>
+        <div class="acc-header">
+          <div class="acc-title"><span class="acc-icon-left">❓</span> FAQ</div>
+          <svg class="acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="acc-body-inner">
+            <div class="faq-list">
+              <div class="faq-item"><div class="faq-q">Windows SmartScreen bloque le .exe — que faire ?</div><div class="faq-a">Cliquez sur "Informations complémentaires" puis "Exécuter quand même". Le code source est auditable sur GitHub.</div></div>
+              <div class="faq-item"><div class="faq-q">TreeForge peut-il écraser des fichiers existants ?</div><div class="faq-a">Uniquement si l'option "Écraser" est activée. Par défaut, les fichiers existants sont conservés.</div></div>
+              <div class="faq-item"><div class="faq-q">Puis-je utiliser TreeForge sans connexion internet ?</div><div class="faq-a">Oui. Fonctionne entièrement hors-ligne.</div></div>
+              <div class="faq-item"><div class="faq-q">Comment envoyer tout mon projet à une IA ?</div><div class="faq-a">Utilisez l'onglet Recaper — il exporte arborescence + contenu en un seul .txt. Puis restaurez avec RevRecaper.</div></div>
+              <div class="faq-item"><div class="faq-q">TreeForge fonctionne-t-il sur Mac ou Linux ?</div><div class="faq-a">L'exe est Windows uniquement. Sinon clonez le dépôt et lancez <code>python main.py</code> (Python 3.10+).</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     SECTION RELEASES (fusionnée depuis inde.html)
+══════════════════════════════════════════════════════════ -->
+<section id="releases">
+  <div class="section-inner">
+    <div class="section-label">Releases</div>
+    <h2>Versions &amp; Roadmap.</h2>
+    <p class="section-sub">Suivi des versions publiées et des fonctionnalités à venir.</p>
+
+    <div class="roadmap reveal">
+      <div class="rm-pill rm-done"><span class="rm-status">✅ Stable</span><span class="rm-label"><strong>v3.0.0</strong> — Générateur · Templates · Recaper · RevRecaper</span></div>
+      <div class="rm-pill rm-next"><span class="rm-status">🔵 Prévu</span><span class="rm-label"><strong>v1.1</strong> — Thème clair · Historique · Export PDF</span></div>
+      <div class="rm-pill rm-later"><span class="rm-status">💭 Futur</span><span class="rm-label"><strong>v2.0</strong> — Éditeur visuel · Plugin VS Code · Multi-plateforme</span></div>
+    </div>
+
+    <div class="releases-timeline">
+      <!-- v3.0.0 -->
+      <div class="release-item reveal">
+        <div class="release-dot dot-stable">🌲</div>
+        <div class="release-card release-stable">
+          <div class="release-header"><div><span class="release-version">v3.0.0</span><span class="release-badge badge-stable">✅ Stable</span></div><span class="release-date">Mai 2026</span></div>
+          <p class="release-desc">Première version publique. Cycle complet : génération depuis texte, templates, export projet et restauration.</p>
+          <div class="changelog">
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Onglet Générateur — 4 formats, 3 modes parsing, 3 modes contenu</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">7 Templates intégrés (Django, React, Vue, Node.js, HTML, Python, MySQL)</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Recaper — export projet complet en .txt compatible IA</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">RevRecaper — restauration depuis fichier recap modifié</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Drag & Drop fichiers + clic droit contextuel</span></div>
+            <div class="cl-item"><span class="cl-tag cl-new">NEW</span><span class="cl-text">Prompts IA intégrés pour 6 types de projets</span></div>
+          </div>
+          <div class="release-downloads">
+            <a href="https://github.com/LiliYagami/ComWR/releases/download/v3.0.0/TreeForge.exe" class="dl-link dl-main"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>TreeForge.exe</a>
+            <a href="https://github.com/LiliYagami/ComWR/archive/refs/tags/v3.0.0.zip" class="dl-link">📦 .zip</a>
+            <a href="https://github.com/LiliYagami/ComWR/archive/refs/tags/v3.0.0.tar.gz" class="dl-link">📦 .tar.gz</a>
+            <a href="https://github.com/LiliYagami/ComWR" target="_blank" class="dl-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>GitHub</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- v1.1 -->
+      <div class="release-item reveal">
+        <div class="release-dot dot-planned">🔵</div>
+        <div class="release-card release-planned">
+          <div class="release-header"><div><span class="release-version">v1.1</span><span class="release-badge badge-planned">🔵 En développement</span></div><span class="release-date">Été 2026</span></div>
+          <p class="release-desc">Améliorations de confort et nouvelles fonctionnalités.</p>
+          <div class="planned-chips"><span class="chip">☀️ Thème clair</span><span class="chip">🕐 Historique des générations</span><span class="chip">📄 Export arborescence PDF</span><span class="chip">🔗 Lien vers site web intégré</span><span class="chip">🌍 Interface EN / FR</span></div>
+        </div>
+      </div>
+
+      <!-- v2.0 -->
+      <div class="release-item reveal">
+        <div class="release-dot dot-planned">💭</div>
+        <div class="release-card release-planned">
+          <div class="release-header"><div><span class="release-version">v2.0</span><span class="release-badge badge-future">💭 Roadmap</span></div><span class="release-date">2027</span></div>
+          <p class="release-desc">Refonte majeure avec éditeur visuel et support multi-plateforme.</p>
+          <div class="planned-chips"><span class="chip">🖱️ Éditeur visuel drag & drop</span><span class="chip">🧩 Plugin VS Code</span><span class="chip">🍎 Support macOS / Linux</span><span class="chip">☁️ Sync cloud templates</span><span class="chip">🤖 Intégration IA directe</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <a href="#" class="nav-logo">
+        <span class="logo-icon">🌲</span>
+        <span class="logo-text">TreeForge</span>
+      </a>
+      <p class="footer-tagline">think smart, work fast</p>
+    </div>
+    <div class="footer-links">
+      <a href="https://github.com/LiliYagami/TreeForge" target="_blank">GitHub</a>
+      <a href="https://github.com/LiliYagami/TreeForge/releases" target="_blank">Releases</a>
+      <a href="https://github.com/LiliYagami/TreeForge/issues" target="_blank">Signaler un bug</a>
+    </div>
+    <div class="footer-right">
+      <p>v3.0.0 · Open Source · Windows</p>
+      <p class="footer-credit">Fait avec 🌲 et beaucoup de café</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
