@@ -24,11 +24,13 @@ import customtkinter as ctk
 from treeforge.config import MODES_PARSING, MODES_CONTENU
 from treeforge.core.parser import parse
 from treeforge.core.generator import generate
+from treeforge.core.diff_engine import compute_plan_for_generate
 from treeforge.utils.logger import logger
 from treeforge.utils.helpers import load_tips, load_prefs, save_prefs
 from treeforge.utils.drag_drop import setup_drop_target, DND_AVAILABLE
 from treeforge.utils.context_menu import attach_context_menu
 from treeforge.gui.components.preview_modal import PreviewModal
+from treeforge.gui.components.diff_preview_modal import DiffPreviewModal
 
 # ── Constantes format ─────────────────────────────────────────────────────────
 
@@ -519,19 +521,23 @@ class GeneratorTab(ctk.CTkFrame):
         if dest_path.exists():
             existing = [p for p in dest_path.iterdir() if not p.name.startswith(".")]
             if existing:
-                confirmed = messagebox.askyesno(
-                    "Dossier non vide — confirmer ?",
-                    f"Le dossier de destination contient deja {len(existing)} element(s) :\n"
-                    f"{dest}\n\n"
-                    f"Les fichiers existants portant le meme nom seront ecrases.\n\n"
-                    f"Continuer quand meme ?",
-                    icon="warning",
+                # Dossier non vide → calcul du plan et validation via la modale de diff
+                # plutôt qu'un simple oui/non qui écraserait tout sans distinction.
+                plan = compute_plan_for_generate(result, dest, content)
+                DiffPreviewModal(
+                    self, plan,
+                    on_confirm=lambda p: self._run_generation(result, dest, content, p),
+                    on_cancel=self._generation_cancelled,
                 )
-                if not confirmed:
-                    self._update_status("Generation annulee — dossier non ecrase")
-                    logger.info("Generation annulee par l'utilisateur (overwrite refuse)")
-                    return
+                return
 
+        self._run_generation(result, dest, content, plan=None)
+
+    def _generation_cancelled(self):
+        self._update_status("Generation annulee — dossier non ecrase")
+        logger.info("Generation annulee par l'utilisateur (plan refuse)")
+
+    def _run_generation(self, result, dest: str, content: str, plan):
         self._update_status("Generation en cours...")
         logger.info(f"Generation -> {dest}  [contenu={content}]")
 
@@ -541,7 +547,8 @@ class GeneratorTab(ctk.CTkFrame):
         def _run():
             nb_dirs, nb_files, errors = generate(
                 result, dest, content,
-                on_progress=lambda msg: logger.info(msg)
+                on_progress=lambda msg: logger.info(msg),
+                plan=plan,
             )
             self.after(0, self._on_done, nb_dirs, nb_files, errors, dest)
 

@@ -10,7 +10,9 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
 from treeforge.core.revers_recaper import extract
+from treeforge.core.diff_engine import compute_plan_for_restore
 from treeforge.utils.logger import logger
+from treeforge.gui.components.diff_preview_modal import DiffPreviewModal
 
 
 class ReversRecaperTab(ctk.CTkFrame):
@@ -164,10 +166,37 @@ class ReversRecaperTab(ctk.CTkFrame):
         if not dest:
             messagebox.showwarning("TreeForge", "Aucun dossier de destination sélectionné.")
             return
-        if not Path(recap).exists():
+        recap_path = Path(recap)
+        if not recap_path.exists():
             messagebox.showerror("TreeForge", f"Fichier introuvable :\n{recap}")
             return
 
+        dest_path = Path(dest)
+        if dest_path.exists():
+            existing = [p for p in dest_path.iterdir() if not p.name.startswith(".")]
+            if existing:
+                # Dossier non vide → calcul du plan et validation via la modale de diff
+                # plutôt que le seul interrupteur global "Écraser les fichiers existants".
+                try:
+                    text = recap_path.read_text(encoding="utf-8", errors="replace")
+                except Exception as e:
+                    messagebox.showerror("TreeForge", f"Impossible de lire le recap :\n{e}")
+                    return
+                plan = compute_plan_for_restore(text, dest_path)
+                DiffPreviewModal(
+                    self, plan,
+                    on_confirm=lambda p: self._launch_restore(recap_path, dest_path, p),
+                    on_cancel=self._restore_cancelled,
+                )
+                return
+
+        self._launch_restore(recap_path, dest_path, plan=None)
+
+    def _restore_cancelled(self):
+        self._update_status("Restauration annulee — dossier non ecrase")
+        logger.info("ReversRecaper — restauration annulee par l'utilisateur (plan refuse)")
+
+    def _launch_restore(self, recap_path: Path, dest_path: Path, plan):
         overwrite = self.overwrite_var.get()
 
         # ── UI : état "en cours" ──────────────────────────────────────────────
@@ -177,19 +206,19 @@ class ReversRecaperTab(ctk.CTkFrame):
         self._progress.configure(mode="indeterminate")
         self._progress.start()
         self._update_status("Restauration en cours…")
-        logger.info("ReversRecaper — démarrage : %s → %s", recap, dest)
+        logger.info("ReversRecaper — démarrage : %s → %s", recap_path, dest_path)
 
         # ── Thread ────────────────────────────────────────────────────────────
         threading.Thread(
             target=self._run,
-            args=(Path(recap), Path(dest), overwrite),
+            args=(recap_path, dest_path, overwrite, plan),
             daemon=True,
         ).start()
 
-    def _run(self, recap_path: Path, dest_dir: Path, overwrite: bool):
+    def _run(self, recap_path: Path, dest_dir: Path, overwrite: bool, plan):
         """Exécuté dans un thread secondaire."""
         try:
-            result = extract(recap_path, dest_dir, overwrite=overwrite)
+            result = extract(recap_path, dest_dir, overwrite=overwrite, plan=plan)
         except Exception as e:
             logger.exception("ReversRecaper — erreur inattendue")
             self.after(0, self._on_error, str(e))

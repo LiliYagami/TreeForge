@@ -11,6 +11,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from treeforge.core.diff_engine import GenerationPlan
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Modèles
@@ -239,6 +243,7 @@ def extract(
     dest_dir:   Path,
     overwrite:      bool = True,
     create_empty:   bool = True,   # ← NOUVEAU : crée les fichiers binaires vides
+    plan: "GenerationPlan | None" = None,
 ) -> ExtractResult:
     """
     Reconstruction hybride depuis un recap TreeForge.
@@ -249,6 +254,11 @@ def extract(
         overwrite     : si False, ignore les fichiers déjà présents
         create_empty  : si True, crée les fichiers de l'arbre sans contenu texte
                         (ex: assets/audio/theme.mp3 → fichier vide placeholder)
+        plan          : GenerationPlan calculé par core.diff_engine.compute_plan_for_restore
+                        sur ce même recap/dest_dir. Si fourni, chaque dossier/fichier dont
+                        le PlanItem a `included=False` (décoché par l'utilisateur) est
+                        ignoré, et les fichiers déjà identiques sur disque ne sont pas
+                        réécrits. Sans plan, comportement inchangé.
     """
     result  = ExtractResult()
     dest_dir = Path(dest_dir).resolve()
@@ -270,6 +280,8 @@ def extract(
 
     # Créer tous les dossiers de l'arbre
     for rel in sorted(arbo_dirs):  # sorted → parents avant enfants
+        if plan is not None and not plan.is_included(rel):
+            continue  # décoché par l'utilisateur dans la modale
         target = _safe_resolve(dest_dir, rel)
         if target is None:
             result.errors.append(f"Chemin suspect (dossier) : {rel}")
@@ -287,6 +299,14 @@ def extract(
     written: set[str] = set()
 
     for rel_path_str, content in entries:
+        if plan is not None:
+            item = plan.get(rel_path_str)
+            if item is not None and not item.included:
+                continue  # décoché par l'utilisateur dans la modale
+            if item is not None and item.status == "unchanged":
+                written.add(rel_path_str)  # déjà identique sur disque, rien à réécrire
+                continue
+
         target = _safe_resolve(dest_dir, rel_path_str)
         if target is None:
             result.errors.append(f"Chemin suspect ignoré : {rel_path_str}")
@@ -309,6 +329,9 @@ def extract(
         for rel in arbo_files:
             if rel in written:
                 continue  # Déjà écrit en phase 2
+
+            if plan is not None and not plan.is_included(rel):
+                continue  # décoché par l'utilisateur dans la modale
 
             target = _safe_resolve(dest_dir, rel)
             if target is None:
