@@ -156,6 +156,7 @@ def _build_lines(
     skip_path: Path | None,
     on_progress: Callable[[str], None] | None,
     include_paths: set[str] | None = None,
+    mode_label: str | None = None,
 ) -> list[str]:
     # Séparateur de bloc — parsé par revers_recaper.py
     # IMPORTANT : ne PAS utiliser "-" * 80 (présent dans le code source lui-même)
@@ -171,8 +172,10 @@ def _build_lines(
         SEP,
         f"Racine du projet : {root}",
         f"Date             : {timestamp}",
-        "",
     ]
+    if mode_label:
+        lines.append(f"Mode             : {mode_label}")
+    lines.append("")
 
     # ── 2) Arborescence ───────────────────────────────────────────────────────
     lines += [
@@ -253,6 +256,7 @@ def recap_text(
     exclude_files: set[str] | None = None,
     on_progress: Callable[[str], None] | None = None,
     include_paths: set[str] | None = None,
+    mode_label: str | None = None,
 ) -> tuple[str, Path]:
     """
     Construit le texte recap d'un projet en mémoire, sans écrire de fichier
@@ -267,6 +271,10 @@ def recap_text(
         include_paths : si fourni, limite le recap à ces chemins relatifs (posix,
                         "/") — fichiers ET dossiers. Calculé via scan_tree() +
                         included_paths_from_tree() depuis la sélection utilisateur.
+        mode_label    : si fourni, ajoute une ligne "Mode : {mode_label}" dans
+                        l'en-tête (ex: "Incrémental depuis HEAD") — pour que le
+                        recap incrémental soit identifiable à l'œil, pas juste
+                        un sous-ensemble silencieux du projet complet.
 
     Returns:
         (texte_recap, racine_résolue)
@@ -277,7 +285,8 @@ def recap_text(
     timestamp     = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=None,
-                          on_progress=on_progress, include_paths=include_paths)
+                          on_progress=on_progress, include_paths=include_paths,
+                          mode_label=mode_label)
     text  = "\n".join(lines)
 
     if on_progress:
@@ -293,6 +302,7 @@ def recap(
     exclude_files: set[str] | None = None,
     on_progress: Callable[[str], None] | None = None,
     include_paths: set[str] | None = None,
+    mode_label: str | None = None,
 ) -> Path:
     """
     Génère le fichier recap d'un projet.
@@ -306,6 +316,8 @@ def recap(
         include_paths : si fourni, limite le recap à ces chemins relatifs (posix,
                         "/") — fichiers ET dossiers. Calculé via scan_tree() +
                         included_paths_from_tree() depuis la sélection utilisateur.
+        mode_label    : si fourni, ajoute une ligne "Mode : {mode_label}" dans
+                        l'en-tête (ex: "Incrémental depuis HEAD").
 
     Returns:
         Path vers le fichier .txt généré.
@@ -321,7 +333,8 @@ def recap(
     out_path  = output_dir / out_name
 
     lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=out_path,
-                          on_progress=on_progress, include_paths=include_paths)
+                          on_progress=on_progress, include_paths=include_paths,
+                          mode_label=mode_label)
 
     # ── Écriture du fichier recap ─────────────────────────────────────────────
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -408,6 +421,65 @@ def included_paths_from_tree(nodes: list[TreeNode]) -> set[str]:
         _walk(root_node, "")
 
     return included
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recap incrémental (git-aware)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def git_changed_files(root: str | Path, ref: str = "HEAD") -> set[str] | None:
+    """
+    Retourne l'ensemble des chemins relatifs (posix, "/") modifiés depuis
+    `ref` (staged + unstaged, via `git diff <ref>`) plus les fichiers non
+    trackés — pour pré-sélectionner "ce qui a changé" dans la modale de
+    sélection avant recap.
+
+    Retourne None si `root` n'est pas la racine d'un dépôt git (jamais
+    d'exception) — le dépôt doit être exactement `root`, pas un parent :
+    comparer contre un dépôt englobant produirait des chemins relatifs à
+    la racine du repo, pas à `root`, et rien ne correspondrait dans l'arbre
+    de sélection (scan_tree part toujours de `root`).
+    """
+    try:
+        import git
+    except ImportError:
+        return None
+
+    root = Path(root).resolve()
+    try:
+        repo = git.Repo(root, search_parent_directories=False)
+    except Exception:
+        return None
+
+    try:
+        diff_output = repo.git.diff(ref, "--name-only")
+        changed = {line.strip() for line in diff_output.splitlines() if line.strip()}
+        changed |= set(repo.untracked_files)
+        return {p.replace("\\", "/") for p in changed}
+    except Exception:
+        return None
+    finally:
+        repo.close()  # libère les handles git (cat-file) — sinon fuite de processus sur Windows
+
+
+def apply_git_selection(nodes: list[TreeNode], changed_paths: set[str]) -> None:
+    """
+    Marque .excluded=True sur les fichiers absents de changed_paths (mutation
+    en place, mode recap incrémental). Les dossiers restent toujours inclus
+    (visibles/dépliables dans la modale) même s'ils ne contiennent aucun
+    fichier modifié — seuls les fichiers sont pré-décochés individuellement,
+    l'utilisateur garde la main pour ajuster ensuite comme d'habitude.
+    """
+    def _walk(node: TreeNode, parent_rel: str) -> None:
+        rel = f"{parent_rel}/{node.name}" if parent_rel else node.name
+        if node.is_dir:
+            for child in node.children:
+                _walk(child, rel)
+        else:
+            node.excluded = rel not in changed_paths
+
+    for root_node in nodes:
+        _walk(root_node, "")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

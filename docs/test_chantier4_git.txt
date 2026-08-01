@@ -1,0 +1,61 @@
+TEST MANUEL — Chantier #4 (recap incrémental git-aware)
+============================================================
+
+Objectif : vérifier que le mode "Modifications uniquement (git)"
+pré-sélectionne bien les fichiers changés/non trackés, laisse le reste
+décoché, et que le recap généré porte la mention du mode.
+
+Prérequis : le dossier de test doit être un dépôt git (avec au moins
+un commit et un fichier modifié depuis). Si tu n'en as pas sous la
+main, dans PowerShell :
+
+  cd C:\Users\KA3x3\Desktop\test-treeforge\demo-app
+  git init
+  git add -A
+  git commit -m "initial"
+  # puis modifie un fichier existant (ex: src/main.py) et enregistre
+  # puis crée un nouveau fichier quelconque, sans le commit/add
+
+------------------------------------------------------------
+ÉTAPE 1 — Sans le mode git (référence)
+------------------------------------------------------------
+1. Onglet Recaper, dossier racine = demo-app, case "🔀 Modifications
+   uniquement (git)" DÉCOCHÉE.
+2. Clique "📄 Générer le fichier .txt" → la modale de sélection doit
+   montrer TOUT coché comme d'habitude (comportement du chantier #3,
+   inchangé).
+3. Annule.
+
+------------------------------------------------------------
+ÉTAPE 2 — Avec le mode git
+------------------------------------------------------------
+1. Coche "🔀 Modifications uniquement (git) depuis :" (champ laissé à
+   "HEAD" par défaut).
+2. Clique "📋 Copier dans le presse-papiers".
+3. Dans la modale de sélection, SEULS le fichier modifié et le
+   nouveau fichier non tracké doivent être cochés — tout le reste
+   doit apparaître décoché (mais toujours visible/dépliable).
+4. La barre de statut doit afficher un message du style
+   "🔀 Incrémental depuis HEAD — fichiers modifiés pré-sélectionnés".
+5. Clique "✔ Continuer", puis colle le résultat dans le Bloc-notes :
+   l'en-tête doit contenir une ligne "Mode             : Incrémental
+   depuis HEAD", et seuls les fichiers modifiés/nouveaux doivent
+   apparaître dans ARBORESCENCE + CONTENU DES FICHIERS.
+
+------------------------------------------------------------
+ÉTAPE 3 — Dossier qui n'est pas un dépôt git
+------------------------------------------------------------
+1. Choisis un dossier racine qui n'a PAS de .git à sa racine.
+2. Coche quand même "Modifications uniquement (git)" et lance un recap.
+3. Un message doit prévenir que ce n'est pas un dépôt git et que la
+   sélection complète est affichée à la place — pas d'erreur, pas de
+   plantage.
+
+------------------------------------------------------------
+ÉTAPE 4 — Référence personnalisée (optionnel)
+------------------------------------------------------------
+1. Si le dépôt a plusieurs commits, remplace "HEAD" par un hash de
+   commit plus ancien ou un nom de branche dans le champ à côté de la
+   case à cocher.
+2. Relance un recap incrémental — la sélection doit refléter les
+   changements depuis CETTE référence, pas juste depuis le dernier commit.

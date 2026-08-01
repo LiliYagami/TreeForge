@@ -7,7 +7,10 @@ from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
-from treeforge.core.recaper import recap, recap_text, scan_tree, included_paths_from_tree, DEFAULT_EXCLUDE_DIRS
+from treeforge.core.recaper import (
+    recap, recap_text, scan_tree, included_paths_from_tree, DEFAULT_EXCLUDE_DIRS,
+    git_changed_files, apply_git_selection,
+)
 from treeforge.utils.logger import logger
 from treeforge.gui.components.recap_selection_modal import RecapSelectionModal
 
@@ -70,9 +73,25 @@ class RecaperTab(ctk.CTkFrame):
         self.excl_box.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
         self._reset_exclusions()
 
+        # ── Mode incrémental (git) ────────────────────────────────────────────
+        git_frame = ctk.CTkFrame(self, fg_color="transparent")
+        git_frame.grid(row=3, column=0, padx=12, pady=(0, 6), sticky="ew")
+
+        self.git_mode_var = ctk.BooleanVar(value=False)
+        ctk.CTkCheckBox(
+            git_frame, text="🔀 Modifications uniquement (git) depuis :",
+            variable=self.git_mode_var,
+        ).pack(side="left")
+
+        self.git_ref_var = ctk.StringVar(value="HEAD")
+        ctk.CTkEntry(
+            git_frame, textvariable=self.git_ref_var, width=110,
+            placeholder_text="HEAD",
+        ).pack(side="left", padx=(8, 0))
+
         # ── Boutons Recaper ───────────────────────────────────────────────────
         btn_bar = ctk.CTkFrame(self, fg_color="transparent")
-        btn_bar.grid(row=3, column=0, padx=12, pady=(6, 12), sticky="ew")
+        btn_bar.grid(row=4, column=0, padx=12, pady=(6, 12), sticky="ew")
         btn_bar.grid_columnconfigure(0, weight=1)
         btn_bar.grid_columnconfigure(1, weight=1)
 
@@ -138,45 +157,65 @@ class RecaperTab(ctk.CTkFrame):
     # ── Sélection avant recap ────────────────────────────────────────────────
 
     def _prepare_selection(self, root: str, mode: str):
-        """Scanne le dossier en arrière-plan puis ouvre la modale de sélection."""
+        """Scanne le dossier en arrière-plan (+ diff git si demandé) puis
+        ouvre la modale de sélection."""
         excl = self._get_exclusions()
+        git_mode = self.git_mode_var.get()
+        ref = self.git_ref_var.get().strip() or "HEAD"
+
         self._update_status("Analyse du dossier…")
         self._set_buttons_state("disabled")
 
         def _scan():
             try:
                 nodes = scan_tree(root, exclude_dirs=excl)
+                mode_label = None
+                git_warning = None
+                if git_mode:
+                    changed = git_changed_files(root, ref)
+                    if changed is None:
+                        git_warning = (
+                            f"« {root} » n'est pas la racine d'un dépôt git — "
+                            f"mode incrémental ignoré, sélection complète affichée."
+                        )
+                    else:
+                        apply_git_selection(nodes, changed)
+                        mode_label = f"Incrémental depuis {ref}"
             except Exception as e:
                 self.after(0, self._on_error, str(e))
                 return
-            self.after(0, self._on_scan_done, nodes, root, mode)
+            self.after(0, self._on_scan_done, nodes, root, mode, mode_label, git_warning)
 
         threading.Thread(target=_scan, daemon=True).start()
 
-    def _on_scan_done(self, nodes: list, root: str, mode: str):
+    def _on_scan_done(self, nodes: list, root: str, mode: str, mode_label: str | None, git_warning: str | None):
         self._set_buttons_state("normal")
+        if git_warning:
+            messagebox.showwarning("TreeForge", git_warning)
         if not nodes:
             messagebox.showinfo(
                 "TreeForge",
                 "Aucun fichier ou dossier trouvé (ou tout est déjà exclu)."
             )
             return
+        if mode_label:
+            self._update_status(f"🔀 {mode_label} — fichiers modifiés pré-sélectionnés")
         RecapSelectionModal(
             self, nodes,
-            on_confirm=lambda selected: self._on_selection_confirmed(selected, root, mode),
+            on_confirm=lambda selected: self._on_selection_confirmed(selected, root, mode, mode_label),
             on_cancel=lambda: self._update_status("Recap annulé — sélection non validée"),
         )
 
-    def _on_selection_confirmed(self, nodes: list, root: str, mode: str):
+    def _on_selection_confirmed(self, nodes: list, root: str, mode: str, mode_label: str | None):
         include_paths = included_paths_from_tree(nodes)
         if mode == "file":
-            self._launch_recap_file(root, include_paths)
+            self._launch_recap_file(root, include_paths, mode_label)
         else:
-            self._launch_recap_clipboard(root, include_paths)
+            self._launch_recap_clipboard(root, include_paths, mode_label)
 
     # ── Lancement effectif ───────────────────────────────────────────────────
 
-    def _launch_recap_file(self, root: str, include_paths: set[str]):
+    def _launch_recap_file(self, root: str, include_paths: set[str], mode_label: str | None):
         out_dir = self.out_var.get().strip() or None
         excl    = self._get_exclusions()
 
@@ -190,6 +229,7 @@ class RecaperTab(ctk.CTkFrame):
                     root, output_dir=out_dir,
                     exclude_dirs=excl,
                     include_paths=include_paths,
+                    mode_label=mode_label,
                     on_progress=lambda m: logger.info(f"  {m}"),
                 )
                 self.after(0, self._on_done, str(out_path))
@@ -198,7 +238,7 @@ class RecaperTab(ctk.CTkFrame):
 
         threading.Thread(target=_run, daemon=True).start()
 
-    def _launch_recap_clipboard(self, root: str, include_paths: set[str]):
+    def _launch_recap_clipboard(self, root: str, include_paths: set[str], mode_label: str | None):
         excl = self._get_exclusions()
 
         self._update_status("Génération du recap en cours (presse-papiers)…")
@@ -210,6 +250,7 @@ class RecaperTab(ctk.CTkFrame):
                 text, resolved_root = recap_text(
                     root, exclude_dirs=excl,
                     include_paths=include_paths,
+                    mode_label=mode_label,
                     on_progress=lambda m: logger.info(f"  {m}"),
                 )
                 self.after(0, self._on_copy_done, text, str(resolved_root))
