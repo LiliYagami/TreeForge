@@ -12,6 +12,7 @@ from treeforge.gui.tabs.revers_recaper_tab import ReversRecaperTab
 from treeforge.gui.tabs.templates_tab      import TemplatesTab
 from treeforge.utils.logger                import logger, attach_gui_handler
 from treeforge.gui.components.log_panel    import LogPanel
+from treeforge.config                      import __version__ as APP_VERSION
 
 # ── Tentative d'initialisation D&D au niveau fenêtre ─────────────────────────
 try:
@@ -30,7 +31,6 @@ except Exception as e:
 
 # ─────────────────────────────────────────────────────────────────────────────
 APP_TITLE   = "TreeForge"
-APP_VERSION = "3.0.0"
 TAGLINE     = "Think smart, work fast"
 WIN_SIZE    = "900x720"
 MIN_SIZE    = (750, 560)

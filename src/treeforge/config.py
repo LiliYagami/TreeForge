@@ -1,7 +1,7 @@
 """Configuration globale de TreeForge."""
 
 APP_TITLE   = "TreeForge"
-__version__ = "1.0.0"
+__version__ = "4.0.0"
 
 MODES_PARSING = ["🔒 Strict", "🔧 Souple", "⚡ Confiant"]
 MODES_CONTENU = ["Vide", "Minimal", "Boilerplate"]

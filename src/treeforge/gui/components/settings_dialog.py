@@ -8,10 +8,8 @@ from tkinter import messagebox
 import customtkinter as ctk
 from treeforge.core.telemetry import is_enabled, set_consent as set_enabled
 from treeforge.utils.helpers import load_prefs, save_prefs, DEFAULT_PREFS, DEFAULT_BOILERPLATE, save_boilerplates
-from treeforge.config import MODES_PARSING, MODES_CONTENU
+from treeforge.config import MODES_PARSING, MODES_CONTENU, __version__ as APP_VERSION
 import treeforge.config as config
-
-APP_VERSION = "1.0.0"
 
 
 class SettingsDialog(ctk.CTkToplevel):

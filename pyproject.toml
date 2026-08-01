@@ -4,7 +4,7 @@ build-backend = "setuptools.backends.legacy:build"
 
 [project]
 name = "treeforge"
-version = "1.0.0"
+version = "4.0.0"
 description = "Générateur d'arborescences de projets — Windows"
 requires-python = ">=3.10"
 dependencies = [

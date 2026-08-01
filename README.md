@@ -1,4 +1,4 @@
-# 🌳 TreeForge v1.0
+# 🌳 TreeForge v4.0.0
 
 **Générateur d'arborescences — Windows — Copier-coller → Générer → Fermer**
 
@@ -10,11 +10,11 @@ TreeForge est un outil complet pour Windows permettant de générer rapidement d
 
 ```powershell
 # 1. Activer l'environnement virtuel existant
-.\TF_venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 
 # (Optionnel) Si vous devez le recréer :
-# python -m venv TF_venv
-# .\TF_venv\Scripts\Activate.ps1
+# py -3.12 -m venv .venv
+# .\.venv\Scripts\Activate.ps1
 
 # 2. Installer toutes les dépendances requises
 pip install -r requirements.txt
@@ -29,7 +29,7 @@ python Main.py
 
 1.  **Générateur d'arborescence** : Copiez-collez une structure texte (Unicode `├──`, Windows `tree /f`, Indentation pure ou JSON) et TreeForge génère les dossiers et fichiers sur le disque.
 2.  **Aperçu Interactif** : Visualisez la structure avant génération dans un arbre interactif. Excluez ou incluez des éléments à l'aide de la touche **Espace** ou du **clic droit**.
-3.  **Boilerplates Personnalisables** : Les fichiers créés peuvent être pré-remplis de codes de démarrage configurables via le fichier externe [boilerplates.json](file:///c:/Users/darec/OneDrive/Desktop/TreeForge_V3.0.0/src/treeforge/resources/stock/boilerplates.json). Un **éditeur de boilerplates graphique** est accessible directement dans les Paramètres.
+3.  **Boilerplates Personnalisables** : Les fichiers créés peuvent être pré-remplis de codes de démarrage configurables via le fichier externe [`src/treeforge/resources/stock/boilerplates.json`](src/treeforge/resources/stock/boilerplates.json). Un **éditeur de boilerplates graphique** est accessible directement dans les Paramètres.
 4.  **Recaper** : Compile l'arborescence et tout le code texte de votre projet dans un fichier unique `.txt` prêt à être envoyé à une IA.
 5.  **Restaurer (ReversRecaper)** : Recrée intégralement les dossiers et les fichiers (incluant la reconstruction des fichiers binaires vides) à partir d'un fichier récapitulatif `.txt`.
 6.  **Thème & Paramètres avancés** : Changez instantanément l'apparence de l'application (Sombre / Clair / Système), gérez l'affichage des astuces, les modes par défaut et effectuez des réinitialisations d'usine dans les Paramètres (`⚙️`).
@@ -89,11 +89,11 @@ Pour exécuter les tests unitaires et s'assurer que les fonctionnalités sont st
 
 ```powershell
 # Exécuter les tests unitaires
-.\TF_venv\Scripts\python -m unittest tests/test_audit_fixes.py
+.\.venv\Scripts\python -m unittest tests/test_audit_fixes.py
 
 # Exécuter les tests de performances du Générateur
-.\TF_venv\Scripts\python -X utf8 tests/benchmark_generator.py
+.\.venv\Scripts\python -X utf8 tests/benchmark_generator.py
 
 # Exécuter les tests de performances du Recaper
-$env:PYTHONPATH="src"; .\TF_venv\Scripts\python -X utf8 tests/benchmark_recaper.py
+$env:PYTHONPATH="src"; .\.venv\Scripts\python -X utf8 tests/benchmark_recaper.py
 ```
