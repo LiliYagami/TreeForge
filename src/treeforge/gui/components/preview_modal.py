@@ -76,7 +76,7 @@ class PreviewModal(ModalToplevel):
 
         ctk.CTkLabel(
             header,
-            text="Vérifiez l'arborescence (Espace/Clic droit pour exclure)",
+            text="Vérifiez l'arborescence (cliquez sur ☑/☐ pour exclure)",
             font=("Consolas", 13, "bold"),
             anchor="w",
         ).grid(row=0, column=0, padx=16, pady=10, sticky="w")

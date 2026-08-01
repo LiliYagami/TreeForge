@@ -1,7 +1,7 @@
 """
 RecapSelectionModal — fenêtre Toplevel de sélection avant recap : affiche
 l'arborescence réelle du dossier source (core.recaper.scan_tree), permet
-d'exclure des fichiers/dossiers (Espace/clic droit/case à cocher, même
+d'exclure des fichiers/dossiers (clic simple sur la case ☑/☐, Espace ou clic droit, même
 composant PreviewTree que côté Générer), et estime la taille du recap
 résultant en direct.
 
@@ -102,7 +102,7 @@ class RecapSelectionModal(ModalToplevel):
 
         ctk.CTkLabel(
             header,
-            text="Choisissez ce qui doit entrer dans le recap (Espace/Clic droit pour exclure)",
+            text="Choisissez ce qui doit entrer dans le recap (cliquez sur ☑/☐ pour exclure)",
             font=("Consolas", 13, "bold"),
             anchor="w",
             wraplength=380,

@@ -122,9 +122,11 @@ class PreviewTree(ctk.CTkFrame):
         self._tree.tag_configure("file", foreground=self._c["fg_file"])
         self._tree.tag_configure("excluded", foreground=self._c["excluded"])
 
+        # Clic simple → cocher/décocher (sauf sur le triangle d'expansion)
+        self._tree.bind("<Button-1>", self._on_left_click)
         # Double-clic → expand/collapse les dossiers
         self._tree.bind("<Double-1>", self._on_double_click)
-        # Espace → exclure / inclure l'élément
+        # Espace → exclure / inclure l'élément (accessibilité clavier)
         self._tree.bind("<space>", self._on_space_toggle)
         # Clic droit → menu contextuel
         self._tree.bind("<Button-3>", self._on_right_click)
@@ -164,21 +166,22 @@ class PreviewTree(ctk.CTkFrame):
 
     # ── Internals ─────────────────────────────────────────────────────────────
 
+    def _label_for(self, node: TreeNode) -> str:
+        box  = "☐" if node.excluded else "☑"
+        icon = "📁" if node.is_dir else "📄"
+        name = f"{node.name}/" if node.is_dir else node.name
+        return f"{box} {icon}  {name}"
+
     def _insert_node(self, parent_id: str, node: TreeNode) -> str:
+        tag = "dir" if node.is_dir else "file"
         if node.is_dir:
-            icon  = "📁"
-            tag   = "dir"
-            label = f"{icon}  {node.name}/"
             self._nb_dirs += 1
         else:
-            icon  = "📄"
-            tag   = "file"
-            label = f"{icon}  {node.name}"
             self._nb_files += 1
 
         item_id = self._tree.insert(
             parent_id, "end",
-            text=label,
+            text=self._label_for(node),
             open=False,
             tags=(tag,),
         )
@@ -209,6 +212,31 @@ class PreviewTree(ctk.CTkFrame):
             return
         is_open = self._tree.item(item, "open")
         self._tree.item(item, open=not is_open)
+
+    def _on_left_click(self, event) -> None:
+        """Clic simple sur une ligne = cocher/décocher, sauf sur le triangle
+        d'expansion (qui garde son comportement natif d'ouvrir/fermer)."""
+        try:
+            element = self._tree.identify_element(event.x, event.y)
+        except Exception:
+            element = ""
+        if "indicator" in element:
+            return
+
+        iid = self._tree.identify_row(event.y)
+        if not iid:
+            return
+        node = self._item_to_node.get(iid)
+        if not node:
+            return
+
+        self._tree.focus(iid)
+        self._tree.selection_set(iid)
+        new_state = not node.excluded
+        self._toggle_node_exclusion(iid, node, new_state)
+        self._update_stats()
+        if self._on_toggle:
+            self._on_toggle()
 
     def _on_space_toggle(self, event) -> str:
         item = self._tree.focus()
@@ -249,7 +277,8 @@ class PreviewTree(ctk.CTkFrame):
 
     def _toggle_node_exclusion(self, item_id: str, node: TreeNode, excluded: bool) -> None:
         node.excluded = excluded
-        
+        self._tree.item(item_id, text=self._label_for(node))
+
         tags = list(self._tree.item(item_id, "tags"))
         if excluded:
             if "excluded" not in tags:
