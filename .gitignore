@@ -26,8 +26,12 @@ assets/
 # Recaps générés
 recaps/
 
-# Préférences utilisateur (optionnel — retirer si tu veux versionner les prefs)
-# src/treeforge/resources/stock/user_prefs.json
+# Préférences utilisateur (spécifiques à chaque poste)
+src/treeforge/resources/stock/user_prefs.json
+
+# Résultats de benchmarks (dépendent de la machine, régénérés localement)
+tests/benchmark_results.csv
+tests/benchmark_recaper_results.csv
 
 # Telemetry settings
 .treeforge/
