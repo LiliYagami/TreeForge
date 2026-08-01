@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
-from typing import Sequence
+from typing import Callable, Sequence
 
 import customtkinter as ctk
 
@@ -38,12 +38,20 @@ class PreviewTree(ctk.CTkFrame):
     dans un Treeview tkinter avec icônes, couleurs et compteurs.
     """
 
-    def __init__(self, master, **kwargs):
+    def __init__(
+        self,
+        master,
+        stats_suffix: str = "à générer",
+        on_toggle: Callable[[], None] | None = None,
+        **kwargs,
+    ):
         super().__init__(master, fg_color="transparent", **kwargs)
 
         self._c = _colors()
         self._nb_dirs  = 0
         self._nb_files = 0
+        self._stats_suffix = stats_suffix
+        self._on_toggle = on_toggle
 
         self._build()
 
@@ -192,7 +200,7 @@ class PreviewTree(ctk.CTkFrame):
                 else:
                     nb_files += 1
         self._stats_var.set(
-            f"  📁 {nb_dirs} dossier(s)   📄 {nb_files} fichier(s) à générer"
+            f"  📁 {nb_dirs} dossier(s)   📄 {nb_files} fichier(s) {self._stats_suffix}"
         )
 
     def _on_double_click(self, event) -> None:
@@ -212,6 +220,8 @@ class PreviewTree(ctk.CTkFrame):
         new_state = not node.excluded
         self._toggle_node_exclusion(item, node, new_state)
         self._update_stats()
+        if self._on_toggle:
+            self._on_toggle()
         return "break"
 
     def _on_right_click(self, event) -> None:
@@ -234,6 +244,8 @@ class PreviewTree(ctk.CTkFrame):
         new_state = not node.excluded
         self._toggle_node_exclusion(iid, node, new_state)
         self._update_stats()
+        if self._on_toggle:
+            self._on_toggle()
 
     def _toggle_node_exclusion(self, item_id: str, node: TreeNode, excluded: bool) -> None:
         node.excluded = excluded

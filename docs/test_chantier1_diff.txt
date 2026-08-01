@@ -1,0 +1,66 @@
+TEST MANUEL — Chantier #1 (modale anti-écrasement / diff)
+============================================================
+
+Objectif : déclencher la modale avec les 3 catégories remplies
+(Nouveaux / Modifiés / Inchangés) pour vérifier le rendu réel.
+
+Dossier de test suggéré : C:\Users\KA3x3\Desktop\test-treeforge
+(vide au départ — TreeForge le crée si besoin)
+
+Mode contenu à sélectionner dans l'onglet Générer : "Boilerplate"
+(donne un contenu par défaut déterministe selon l'extension —
+important pour que la 2e génération produise bien "Inchangé"
+sur les fichiers non touchés)
+
+------------------------------------------------------------
+ÉTAPE 1 — Premier collage + Générer
+------------------------------------------------------------
+Colle ceci dans l'onglet Générer, destination = dossier de test,
+mode contenu = Boilerplate, puis clique "Generer structure" :
+
+demo-app/
+├── README.md
+├── src/
+│   ├── main.py
+│   └── utils.py
+└── config.json
+
+------------------------------------------------------------
+ÉTAPE 2 — Modifier un fichier à la main
+------------------------------------------------------------
+Ouvre le fichier généré :
+  C:\Users\KA3x3\Desktop\test-treeforge\demo-app\src\main.py
+Ajoute une ligne quelconque dedans (ex: "# modification manuelle")
+et enregistre.
+
+Ce fichier va maintenant apparaître comme "Modifié" à la
+prochaine génération, puisque son contenu réel diverge du
+boilerplate que TreeForge regénérerait.
+
+------------------------------------------------------------
+ÉTAPE 3 — Deuxième collage + Générer (sur le MÊME dossier)
+------------------------------------------------------------
+Remplace le texte dans l'onglet Générer par celui-ci (ajoute un
+fichier et un dossier en plus, garde le reste identique), même
+destination, même mode Boilerplate, puis "Generer structure" :
+
+demo-app/
+├── README.md
+├── src/
+│   ├── main.py
+│   ├── utils.py
+│   └── new_feature.py
+├── config.json
+└── tests/
+    └── test_main.py
+
+------------------------------------------------------------
+RÉSULTAT ATTENDU dans la modale
+------------------------------------------------------------
+🆕 Nouveaux (2)   : src/new_feature.py, tests/ (+ tests/test_main.py)
+✏️ Modifiés (1)   : src/main.py   → bouton "Voir le diff" montre
+                     ta ligne ajoutée à la main vs. le boilerplate
+✅ Inchangés (3+) : README.md, src/utils.py, config.json, demo-app/, src/
+
+Essaie aussi de décocher "src/new_feature.py" avant de cliquer
+Appliquer : le fichier ne doit PAS être créé sur le disque.

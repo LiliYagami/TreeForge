@@ -19,9 +19,10 @@ import customtkinter as ctk
 
 from treeforge.core.models import TreeNode, ParseResult
 from treeforge.gui.components.preview_tree import PreviewTree, _colors
+from treeforge.gui.components.modal_base import ModalToplevel
 
 
-class PreviewModal(ctk.CTkToplevel):
+class PreviewModal(ModalToplevel):
     """
     Fenêtre modale de prévisualisation.
 
@@ -42,7 +43,6 @@ class PreviewModal(ctk.CTkToplevel):
         **kwargs,
     ):
         super().__init__(master, **kwargs)
-        self.withdraw()  # Masquer temporairement
 
         self._result    = parse_result
         self._on_confirm = on_confirm
@@ -55,23 +55,13 @@ class PreviewModal(ctk.CTkToplevel):
         self.minsize(480, 400)
         self.resizable(True, True)
 
-        # Surplombe la fenêtre principale
-        self.transient(master)
-
         # Fermeture via croix = annulation
         self.protocol("WM_DELETE_WINDOW", self._cancel)
 
         self._build()
         self._load()
 
-        self.after(100, self._show_and_center)
-
-    def _show_and_center(self):
-        self._center()
-        self.deiconify()
-        self.grab_set()
-        self.lift()
-        self.focus_force()
+        self._start_show_sequence()
 
     # ── Construction ─────────────────────────────────────────────────────
 
@@ -156,26 +146,12 @@ class PreviewModal(ctk.CTkToplevel):
     # ── Actions ───────────────────────────────────────────────────────────
 
     def _confirm(self):
-        self.grab_release()
+        self._close()
         self.destroy()
         self._on_confirm(self._result)
 
     def _cancel(self):
-        self.grab_release()
+        self._close()
         self.destroy()
         if self._on_cancel:
             self._on_cancel()
-
-    # ── Centrage ──────────────────────────────────────────────────────────
-
-    def _center(self):
-        self.update_idletasks()
-        pw = self.master.winfo_width()
-        ph = self.master.winfo_height()
-        px = self.master.winfo_rootx()
-        py = self.master.winfo_rooty()
-        w  = self.winfo_width()
-        h  = self.winfo_height()
-        x  = px + (pw - w) // 2
-        y  = py + (ph - h) // 2
-        self.geometry(f"+{x}+{y}")

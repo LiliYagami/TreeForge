@@ -17,13 +17,14 @@ from typing import Callable
 import customtkinter as ctk
 
 from treeforge.core.diff_engine import GenerationPlan, PlanItem
+from treeforge.gui.components.modal_base import ModalToplevel
 
 _GREEN  = ("#1b6b2e", "#66bb6a")
 _ORANGE = ("#b45309", "#fbbf24")
 _GRAY   = ("gray40", "gray60")
 
 
-class DiffPreviewModal(ctk.CTkToplevel):
+class DiffPreviewModal(ModalToplevel):
     """
     Paramètres
     ----------
@@ -43,7 +44,6 @@ class DiffPreviewModal(ctk.CTkToplevel):
         **kwargs,
     ):
         super().__init__(master, **kwargs)
-        self.withdraw()
 
         self._plan       = plan
         self._on_confirm = on_confirm
@@ -53,69 +53,10 @@ class DiffPreviewModal(ctk.CTkToplevel):
         self.geometry("640x600")
         self.minsize(500, 420)
         self.resizable(True, True)
-        self.transient(master)
         self.protocol("WM_DELETE_WINDOW", self._cancel)
 
         self._build()
-        self._watchdog_job = None
-        self.after(100, self._show_and_center)
-
-    def _show_and_center(self):
-        self._center()
-        self.deiconify()
-        # wait_visibility() plutôt qu'un délai deviné : évite un grab_set()
-        # posé sur une fenêtre pas encore réellement mappée côté Windows.
-        self.wait_visibility()
-        self.grab_set()
-        self.lift()
-        self.focus_force()
-        self._force_repaint()
-        self._schedule_visibility_watchdog()
-
-    def _force_repaint(self):
-        """
-        Contourne un bug de compositing Windows (DWM) observé sur cette appli :
-        la CTkToplevel modale garde le focus et le grab (donc bloque bien les
-        événements — l'appli semble figée) mais son contenu n'est plus
-        recomposé à l'écran, jusqu'à ce qu'une action système (ex: Win+flèche,
-        Alt-Tab) force Windows à la repeindre. Un léger cycle d'opacité force
-        le même recompositing sans dépendre de l'utilisateur.
-        """
-        try:
-            self.attributes("-alpha", 0.999)
-            self.after(30, lambda: self.winfo_exists() and self.attributes("-alpha", 1.0))
-        except Exception:
-            pass
-
-    def _schedule_visibility_watchdog(self):
-        """
-        Revérifie et force périodiquement le repaint pendant que la modale
-        garde le grab. winfo_viewable() seul ne suffit pas : dans le bug
-        observé, Tk considère toujours la fenêtre visible/mappée alors que
-        Windows ne la repeint plus — donc on force le nudge d'opacité à
-        chaque tick, pas seulement quand winfo_viewable() ment.
-        """
-        if not self.winfo_exists():
-            return
-        if not self.winfo_viewable():
-            try:
-                self.deiconify()
-                self.lift()
-                self.attributes("-topmost", True)
-                self.after(50, lambda: self.winfo_exists() and self.attributes("-topmost", False))
-                self.focus_force()
-            except Exception:
-                pass
-        self._force_repaint()
-        self._watchdog_job = self.after(1000, self._schedule_visibility_watchdog)
-
-    def _cancel_watchdog(self):
-        if self._watchdog_job is not None:
-            try:
-                self.after_cancel(self._watchdog_job)
-            except Exception:
-                pass
-            self._watchdog_job = None
+        self._start_show_sequence()
 
     # ── Construction ─────────────────────────────────────────────────────
 
@@ -270,28 +211,12 @@ class DiffPreviewModal(ctk.CTkToplevel):
     # ── Actions ───────────────────────────────────────────────────────────
 
     def _confirm(self):
-        self._cancel_watchdog()
-        self.grab_release()
+        self._close()
         self.destroy()
         self._on_confirm(self._plan)
 
     def _cancel(self):
-        self._cancel_watchdog()
-        self.grab_release()
+        self._close()
         self.destroy()
         if self._on_cancel:
             self._on_cancel()
-
-    # ── Centrage ──────────────────────────────────────────────────────────
-
-    def _center(self):
-        self.update_idletasks()
-        pw = self.master.winfo_width()
-        ph = self.master.winfo_height()
-        px = self.master.winfo_rootx()
-        py = self.master.winfo_rooty()
-        w  = self.winfo_width()
-        h  = self.winfo_height()
-        x  = px + (pw - w) // 2
-        y  = py + (ph - h) // 2
-        self.geometry(f"+{x}+{y}")

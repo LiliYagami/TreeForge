@@ -12,6 +12,7 @@ class TreeNode:
     content: str = ""
     depth: int = 0
     excluded: bool = False
+    size: int = 0  # octets — utilisé par la sélection Recaper (estimation de taille)
 
     def __repr__(self) -> str:
         kind = "📁" if self.is_dir else "📄"

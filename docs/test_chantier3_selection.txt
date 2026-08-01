@@ -1,0 +1,49 @@
+TEST MANUEL — Chantier #3 (recap sélectif)
+============================================================
+
+Objectif : vérifier que la modale de sélection s'ouvre avant chaque
+recap, que décocher un élément l'exclut vraiment du résultat, et que
+l'estimation de taille réagit en direct.
+
+Dossier de test suggéré : celui du chantier #1
+  C:\Users\KA3x3\Desktop\test-treeforge\demo-app
+
+------------------------------------------------------------
+ÉTAPE 1 — Ouverture de la modale
+------------------------------------------------------------
+1. Onglet Recaper, "Dossier racine" = demo-app.
+2. Clique sur "📄 Générer le fichier .txt" OU "📋 Copier dans le
+   presse-papiers" (les deux doivent maintenant ouvrir la même
+   modale de sélection avant de faire quoi que ce soit).
+3. Tu dois voir l'arborescence réelle du dossier (README.md, src/,
+   src/main.py, src/utils.py, config.json, etc.) avec tout coché par
+   défaut, et une ligne "≈ N tokens estimés... · M fichier(s) texte
+   inclus" sous l'arbre.
+
+------------------------------------------------------------
+ÉTAPE 2 — Exclusion et estimation en direct
+------------------------------------------------------------
+1. Sélectionne "src/main.py" et appuie sur Espace (ou clic droit →
+   Exclure) pour le décocher.
+2. La ligne d'estimation doit se mettre à jour immédiatement (moins
+   de tokens, un fichier texte de moins).
+3. Décoche le dossier "src" entier — tous ses enfants doivent
+   disparaître de l'estimation en une fois (cascade).
+4. Reclique pour tout réinclure.
+
+------------------------------------------------------------
+ÉTAPE 3 — Vérifier que l'exclusion est respectée dans le résultat
+------------------------------------------------------------
+1. Décoche "config.json" uniquement, clique "✔ Continuer".
+2. Si tu as choisi "Copier dans le presse-papiers" : colle le résultat
+   dans le Bloc-notes. "config.json" ne doit apparaître NULLE PART
+   (ni dans ARBORESCENCE, ni dans CONTENU DES FICHIERS).
+3. Si tu as choisi "Générer le fichier .txt" : ouvre le .txt généré
+   dans recaps/ et vérifie la même chose.
+
+------------------------------------------------------------
+ÉTAPE 4 — Annulation
+------------------------------------------------------------
+1. Relance un recap, clique "✕ Annuler" dans la modale de sélection.
+2. Rien ne doit être généré/copié, la barre de statut doit dire
+   "Recap annulé — sélection non validée".

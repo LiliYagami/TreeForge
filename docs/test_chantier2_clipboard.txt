@@ -1,0 +1,38 @@
+TEST MANUEL — Chantier #2 (mode presse-papiers)
+============================================================
+
+------------------------------------------------------------
+A) Onglet Recaper
+------------------------------------------------------------
+1. Dossier racine = C:\Users\KA3x3\Desktop\test-treeforge\demo-app
+   (celui créé lors du test du chantier #1 — ou n'importe quel dossier)
+2. Deux boutons doivent apparaître côte à côte en bas :
+   "📄 Générer le fichier .txt"  et  "📋 Copier dans le presse-papiers"
+3. Clique sur "📋 Copier dans le presse-papiers"
+   → une popup confirme la copie, la barre de statut affiche
+     "✅ Recap copié dans le presse-papiers (N lignes)"
+4. Ouvre le Bloc-notes et fais Ctrl+V → le contenu du recap
+   (ARBORESCENCE + blocs <<TREEFORGE_FILE_BLOCK>>) doit apparaître,
+   sans qu'aucun fichier .txt n'ait été créé sur le disque.
+
+------------------------------------------------------------
+B) Onglet Restaurer
+------------------------------------------------------------
+1. Laisse le texte copié à l'étape A dans le presse-papiers
+   (ou copie n'importe quel recap valide).
+2. Dans l'onglet Restaurer, à côté de "Parcourir…", il y a
+   maintenant un bouton "📋 Coller".
+3. Clique dessus : le champ "Fichier recap" affiche
+   "(presse-papiers — N lignes)" et la barre de statut confirme.
+4. Choisis un dossier de destination (peut être vide ou existant),
+   clique "🔄 Restaurer le projet".
+5. Si le dossier était non vide, la modale de vérification (chantier #1)
+   doit s'ouvrir normalement, exactement comme avec un fichier .txt.
+
+------------------------------------------------------------
+C) Test négatif — presse-papiers vide/invalide
+------------------------------------------------------------
+1. Copie n'importe quel texte random (pas un recap) dans le presse-papiers.
+2. Clique "📋 Coller" dans l'onglet Restaurer.
+3. Une boîte de dialogue doit demander confirmation ("Format non reconnu...
+   Essayer quand même ?") plutôt que planter.

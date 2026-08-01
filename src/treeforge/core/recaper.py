@@ -22,6 +22,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
+from treeforge.core.models import TreeNode
+
 # Forcer UTF-8 pour la console Windows
 if sys.platform == "win32":
     import ctypes
@@ -105,10 +107,16 @@ def _tree_lines(
     out: list[str],
     exclude_dirs: set[str],
     prefix: str = "",
+    include_paths: set[str] | None = None,
+    rel_prefix: str = "",
 ) -> None:
     """
     Construit récursivement les lignes d'arborescence unicode.
     Dossiers affichés avant les fichiers dans chaque niveau.
+
+    Si include_paths est fourni, seuls les chemins relatifs (posix, "/")
+    présents dans cet ensemble sont affichés — utilisé par la sélection
+    Recaper pour ne montrer/inclure que les éléments cochés.
     """
     try:
         entries = sorted(
@@ -120,6 +128,8 @@ def _tree_lines(
         return
 
     entries = [e for e in entries if e.name not in exclude_dirs]
+    if include_paths is not None:
+        entries = [e for e in entries if f"{rel_prefix}{e.name}" in include_paths]
 
     for i, entry in enumerate(entries):
         is_last   = i == len(entries) - 1
@@ -128,7 +138,10 @@ def _tree_lines(
 
         if entry.is_dir():
             extension = "    " if is_last else "│   "
-            _tree_lines(entry, out, exclude_dirs, prefix + extension)
+            _tree_lines(
+                entry, out, exclude_dirs, prefix + extension,
+                include_paths, f"{rel_prefix}{entry.name}/",
+            )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -142,6 +155,7 @@ def _build_lines(
     timestamp: str,
     skip_path: Path | None,
     on_progress: Callable[[str], None] | None,
+    include_paths: set[str] | None = None,
 ) -> list[str]:
     # Séparateur de bloc — parsé par revers_recaper.py
     # IMPORTANT : ne PAS utiliser "-" * 80 (présent dans le code source lui-même)
@@ -168,7 +182,7 @@ def _build_lines(
         f"Structure du dossier : {root.name}",
         "",
     ]
-    _tree_lines(root, lines, exclude_dirs, prefix="")
+    _tree_lines(root, lines, exclude_dirs, prefix="", include_paths=include_paths)
     lines.append("")
 
     # ── 3) Contenu des fichiers ───────────────────────────────────────────────
@@ -177,6 +191,10 @@ def _build_lines(
     for current_dir, dirs, files in os.walk(root):
         # Élagage en place → os.walk ne descend pas dans les dossiers exclus
         dirs[:] = [d for d in sorted(dirs) if d not in exclude_dirs]
+        if include_paths is not None:
+            current_rel = Path(current_dir).relative_to(root)
+            prefix = "" if str(current_rel) == "." else f"{current_rel.as_posix()}/"
+            dirs[:] = [d for d in dirs if f"{prefix}{d}" in include_paths]
 
         for file_name in sorted(files):
             file_path = Path(current_dir) / file_name
@@ -195,6 +213,9 @@ def _build_lines(
                 continue
 
             rel_path = file_path.relative_to(root)
+
+            if include_paths is not None and rel_path.as_posix() not in include_paths:
+                continue
 
             if on_progress:
                 on_progress(f"  📄 {rel_path}")
@@ -231,6 +252,7 @@ def recap_text(
     exclude_dirs: set[str] | None = None,
     exclude_files: set[str] | None = None,
     on_progress: Callable[[str], None] | None = None,
+    include_paths: set[str] | None = None,
 ) -> tuple[str, Path]:
     """
     Construit le texte recap d'un projet en mémoire, sans écrire de fichier
@@ -242,6 +264,9 @@ def recap_text(
         exclude_dirs  : Dossiers supplémentaires à ignorer (fusionné avec DEFAULT_EXCLUDE_DIRS).
         exclude_files : Fichiers spécifiques à ignorer (noms exacts).
         on_progress   : Callback(message: str) appelé pour chaque fichier traité.
+        include_paths : si fourni, limite le recap à ces chemins relatifs (posix,
+                        "/") — fichiers ET dossiers. Calculé via scan_tree() +
+                        included_paths_from_tree() depuis la sélection utilisateur.
 
     Returns:
         (texte_recap, racine_résolue)
@@ -251,7 +276,8 @@ def recap_text(
     exclude_files = exclude_files or set()
     timestamp     = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=None, on_progress=on_progress)
+    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=None,
+                          on_progress=on_progress, include_paths=include_paths)
     text  = "\n".join(lines)
 
     if on_progress:
@@ -266,6 +292,7 @@ def recap(
     exclude_dirs: set[str] | None = None,
     exclude_files: set[str] | None = None,
     on_progress: Callable[[str], None] | None = None,
+    include_paths: set[str] | None = None,
 ) -> Path:
     """
     Génère le fichier recap d'un projet.
@@ -276,6 +303,9 @@ def recap(
         exclude_dirs  : Dossiers supplémentaires à ignorer (fusionné avec DEFAULT_EXCLUDE_DIRS).
         exclude_files : Fichiers spécifiques à ignorer (noms exacts).
         on_progress   : Callback(message: str) appelé pour chaque fichier traité.
+        include_paths : si fourni, limite le recap à ces chemins relatifs (posix,
+                        "/") — fichiers ET dossiers. Calculé via scan_tree() +
+                        included_paths_from_tree() depuis la sélection utilisateur.
 
     Returns:
         Path vers le fichier .txt généré.
@@ -290,7 +320,8 @@ def recap(
     out_name  = f"recap_{root.name}_{timestamp}.txt"
     out_path  = output_dir / out_name
 
-    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=out_path, on_progress=on_progress)
+    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=out_path,
+                          on_progress=on_progress, include_paths=include_paths)
 
     # ── Écriture du fichier recap ─────────────────────────────────────────────
     out_path.write_text("\n".join(lines), encoding="utf-8")
@@ -299,6 +330,84 @@ def recap(
         on_progress(f"✅ Recap généré : {out_path}")
 
     return out_path
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sélection interactive avant recap
+# ─────────────────────────────────────────────────────────────────────────────
+
+def scan_tree(
+    root: str | Path,
+    exclude_dirs: set[str] | None = None,
+    exclude_files: set[str] | None = None,
+) -> list[TreeNode]:
+    """
+    Construit un arbre TreeNode à partir du contenu réel d'un dossier sur
+    disque — pour la sélection interactive avant recap (inclusion/exclusion
+    par fichier/dossier via TreeNode.excluded, même modèle que le générateur).
+
+    Retourne les nœuds de premier niveau (le contenu de `root`, pas `root`
+    lui-même — il n'apparaît pas comme une ligne dans l'arborescence recap).
+    Les dossiers de DEFAULT_EXCLUDE_DIRS sont exclus du scan (jamais affichés),
+    pas juste pré-décochés — un projet avec node_modules/ ne doit pas ramer
+    à l'ouverture de la modale.
+    """
+    root          = Path(root).resolve()
+    exclude_dirs  = (exclude_dirs or set()) | DEFAULT_EXCLUDE_DIRS
+    exclude_files = exclude_files or set()
+
+    def _scan_dir(path: Path) -> list[TreeNode]:
+        try:
+            entries = sorted(path.iterdir(), key=lambda p: (p.is_file(), p.name.lower()))
+        except PermissionError:
+            return []
+
+        nodes: list[TreeNode] = []
+        for entry in entries:
+            if entry.is_dir():
+                if entry.name in exclude_dirs:
+                    continue
+                node = TreeNode(name=entry.name, is_dir=True)
+                node.children = _scan_dir(entry)
+                nodes.append(node)
+            else:
+                if entry.name in exclude_files:
+                    continue
+                size = 0
+                if _is_text_file(entry):
+                    try:
+                        size = entry.stat().st_size
+                    except OSError:
+                        size = 0
+                nodes.append(TreeNode(name=entry.name, is_dir=False, size=size))
+        return nodes
+
+    return _scan_dir(root)
+
+
+def included_paths_from_tree(nodes: list[TreeNode]) -> set[str]:
+    """
+    Aplatit un arbre de sélection (TreeNode.excluded, coché/décoché dans la
+    modale) en l'ensemble des chemins relatifs — fichiers ET dossiers — à
+    passer à recap()/recap_text() via include_paths.
+
+    Un nœud exclu (et donc tous ses descendants) est simplement absent du
+    résultat, comme le générateur le fait déjà pour node.excluded.
+    """
+    included: set[str] = set()
+
+    def _walk(node: TreeNode, parent_rel: str) -> None:
+        if node.excluded:
+            return
+        rel = f"{parent_rel}/{node.name}" if parent_rel else node.name
+        included.add(rel)
+        for child in node.children:
+            _walk(child, rel)
+
+    for root_node in nodes:
+        _walk(root_node, "")
+
+    return included
 
 
 # ─────────────────────────────────────────────────────────────────────────────

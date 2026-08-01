@@ -7,8 +7,9 @@ from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
-from treeforge.core.recaper import recap, recap_text, DEFAULT_EXCLUDE_DIRS
+from treeforge.core.recaper import recap, recap_text, scan_tree, included_paths_from_tree, DEFAULT_EXCLUDE_DIRS
 from treeforge.utils.logger import logger
+from treeforge.gui.components.recap_selection_modal import RecapSelectionModal
 
 
 class RecaperTab(ctk.CTkFrame):
@@ -126,9 +127,58 @@ class RecaperTab(ctk.CTkFrame):
         root = self._get_root_or_warn()
         if not root:
             return
+        self._prepare_selection(root, mode="file")
 
-        out_dir  = self.out_var.get().strip() or None
-        excl     = self._get_exclusions()
+    def _run_recap_clipboard(self):
+        root = self._get_root_or_warn()
+        if not root:
+            return
+        self._prepare_selection(root, mode="clipboard")
+
+    # ── Sélection avant recap ────────────────────────────────────────────────
+
+    def _prepare_selection(self, root: str, mode: str):
+        """Scanne le dossier en arrière-plan puis ouvre la modale de sélection."""
+        excl = self._get_exclusions()
+        self._update_status("Analyse du dossier…")
+        self._set_buttons_state("disabled")
+
+        def _scan():
+            try:
+                nodes = scan_tree(root, exclude_dirs=excl)
+            except Exception as e:
+                self.after(0, self._on_error, str(e))
+                return
+            self.after(0, self._on_scan_done, nodes, root, mode)
+
+        threading.Thread(target=_scan, daemon=True).start()
+
+    def _on_scan_done(self, nodes: list, root: str, mode: str):
+        self._set_buttons_state("normal")
+        if not nodes:
+            messagebox.showinfo(
+                "TreeForge",
+                "Aucun fichier ou dossier trouvé (ou tout est déjà exclu)."
+            )
+            return
+        RecapSelectionModal(
+            self, nodes,
+            on_confirm=lambda selected: self._on_selection_confirmed(selected, root, mode),
+            on_cancel=lambda: self._update_status("Recap annulé — sélection non validée"),
+        )
+
+    def _on_selection_confirmed(self, nodes: list, root: str, mode: str):
+        include_paths = included_paths_from_tree(nodes)
+        if mode == "file":
+            self._launch_recap_file(root, include_paths)
+        else:
+            self._launch_recap_clipboard(root, include_paths)
+
+    # ── Lancement effectif ───────────────────────────────────────────────────
+
+    def _launch_recap_file(self, root: str, include_paths: set[str]):
+        out_dir = self.out_var.get().strip() or None
+        excl    = self._get_exclusions()
 
         self._update_status("Génération du recap en cours…")
         logger.info(f"Recaper → {root}")
@@ -139,6 +189,7 @@ class RecaperTab(ctk.CTkFrame):
                 out_path = recap(
                     root, output_dir=out_dir,
                     exclude_dirs=excl,
+                    include_paths=include_paths,
                     on_progress=lambda m: logger.info(f"  {m}"),
                 )
                 self.after(0, self._on_done, str(out_path))
@@ -147,11 +198,7 @@ class RecaperTab(ctk.CTkFrame):
 
         threading.Thread(target=_run, daemon=True).start()
 
-    def _run_recap_clipboard(self):
-        root = self._get_root_or_warn()
-        if not root:
-            return
-
+    def _launch_recap_clipboard(self, root: str, include_paths: set[str]):
         excl = self._get_exclusions()
 
         self._update_status("Génération du recap en cours (presse-papiers)…")
@@ -162,6 +209,7 @@ class RecaperTab(ctk.CTkFrame):
             try:
                 text, resolved_root = recap_text(
                     root, exclude_dirs=excl,
+                    include_paths=include_paths,
                     on_progress=lambda m: logger.info(f"  {m}"),
                 )
                 self.after(0, self._on_copy_done, text, str(resolved_root))

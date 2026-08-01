@@ -10,31 +10,24 @@ from treeforge.core.telemetry import is_enabled, set_consent as set_enabled
 from treeforge.utils.helpers import load_prefs, save_prefs, DEFAULT_PREFS, DEFAULT_BOILERPLATE, save_boilerplates
 from treeforge.config import MODES_PARSING, MODES_CONTENU, __version__ as APP_VERSION
 import treeforge.config as config
+from treeforge.gui.components.modal_base import ModalToplevel
 
 
-class SettingsDialog(ctk.CTkToplevel):
+class SettingsDialog(ModalToplevel):
 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.withdraw()  # Masquer temporairement
         self.title("TreeForge — Paramètres")
         self.geometry("540x480")
         self.minsize(460, 400)
         self.resizable(True, True)
-        self.transient(master)
         self.protocol("WM_DELETE_WINDOW", self.destroy)
         self._build()
-        
-        self.after(100, self._show_and_center)
 
-    def _show_and_center(self):
-        self._center()
-        self.deiconify()
-        self.grab_set()
-        self.lift()
-        self.focus_force()
+        self._start_show_sequence()
 
     def destroy(self):
+        self._close()
         try:
             self.master.refresh_settings()
         except Exception:
@@ -42,13 +35,6 @@ class SettingsDialog(ctk.CTkToplevel):
         super().destroy()
 
     # ─────────────────────────────────────────────────────────────────────────
-
-    def _center(self):
-        self.update_idletasks()
-        m = self.master
-        x = m.winfo_x() + (m.winfo_width()  - self.winfo_width())  // 2
-        y = m.winfo_y() + (m.winfo_height() - self.winfo_height()) // 2
-        self.geometry(f"+{x}+{y}")
 
     def _build(self):
         self.grid_rowconfigure(0, weight=1)
