@@ -7,7 +7,7 @@ from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
-from treeforge.core.recaper import recap, DEFAULT_EXCLUDE_DIRS
+from treeforge.core.recaper import recap, recap_text, DEFAULT_EXCLUDE_DIRS
 from treeforge.utils.logger import logger
 
 
@@ -69,13 +69,27 @@ class RecaperTab(ctk.CTkFrame):
         self.excl_box.grid(row=1, column=0, sticky="nsew", pady=(4, 0))
         self._reset_exclusions()
 
-        # ── Bouton Recaper ───────────────────────────────────────────────────
+        # ── Boutons Recaper ───────────────────────────────────────────────────
+        btn_bar = ctk.CTkFrame(self, fg_color="transparent")
+        btn_bar.grid(row=3, column=0, padx=12, pady=(6, 12), sticky="ew")
+        btn_bar.grid_columnconfigure(0, weight=1)
+        btn_bar.grid_columnconfigure(1, weight=1)
+
         self._btn_recap = ctk.CTkButton(
-            self, text="Générer le recap .txt", height=36,
+            btn_bar, text="📄  Générer le fichier .txt", height=36,
             fg_color="#1565c0", hover_color="#0d47a1",
             command=self._run_recap
         )
-        self._btn_recap.grid(row=3, column=0, padx=12, pady=(6, 12), sticky="ew")
+        self._btn_recap.grid(row=0, column=0, padx=(0, 6), sticky="ew")
+
+        self._btn_copy = ctk.CTkButton(
+            btn_bar, text="📋  Copier dans le presse-papiers", height=36,
+            fg_color="transparent", border_width=1,
+            text_color=("gray15", "gray90"),
+            hover_color=("gray85", "gray25"),
+            command=self._run_recap_clipboard
+        )
+        self._btn_copy.grid(row=0, column=1, padx=(6, 0), sticky="ew")
 
 
     def _browse_root(self):
@@ -97,10 +111,20 @@ class RecaperTab(ctk.CTkFrame):
         raw = self.excl_box.get("1.0", "end-1c")
         return {line.strip() for line in raw.splitlines() if line.strip()}
 
-    def _run_recap(self):
+    def _get_root_or_warn(self) -> str | None:
         root = self.root_var.get().strip()
         if not root:
             messagebox.showwarning("TreeForge", "Sélectionnez un dossier racine.")
+            return None
+        return root
+
+    def _set_buttons_state(self, state: str):
+        self._btn_recap.configure(state=state)
+        self._btn_copy.configure(state=state)
+
+    def _run_recap(self):
+        root = self._get_root_or_warn()
+        if not root:
             return
 
         out_dir  = self.out_var.get().strip() or None
@@ -108,7 +132,7 @@ class RecaperTab(ctk.CTkFrame):
 
         self._update_status("Génération du recap en cours…")
         logger.info(f"Recaper → {root}")
-        self._btn_recap.configure(state="disabled")
+        self._set_buttons_state("disabled")
 
         def _run():
             try:
@@ -123,9 +147,31 @@ class RecaperTab(ctk.CTkFrame):
 
         threading.Thread(target=_run, daemon=True).start()
 
+    def _run_recap_clipboard(self):
+        root = self._get_root_or_warn()
+        if not root:
+            return
+
+        excl = self._get_exclusions()
+
+        self._update_status("Génération du recap en cours (presse-papiers)…")
+        logger.info(f"Recaper (presse-papiers) → {root}")
+        self._set_buttons_state("disabled")
+
+        def _run():
+            try:
+                text, resolved_root = recap_text(
+                    root, exclude_dirs=excl,
+                    on_progress=lambda m: logger.info(f"  {m}"),
+                )
+                self.after(0, self._on_copy_done, text, str(resolved_root))
+            except Exception as e:
+                self.after(0, self._on_error, str(e))
+
+        threading.Thread(target=_run, daemon=True).start()
 
     def _on_done(self, out_path: str):
-        self._btn_recap.configure(state="normal")
+        self._set_buttons_state("normal")
         self._update_status(f"✅ Recap généré → {out_path}")
         logger.info(f"✅ Recap généré : {out_path}")
         messagebox.showinfo(
@@ -133,8 +179,22 @@ class RecaperTab(ctk.CTkFrame):
             f"Le fichier a été créé :\n{out_path}\n\nCopiez-le dans votre IA !"
         )
 
+    def _on_copy_done(self, text: str, root: str):
+        self._set_buttons_state("normal")
+        self.clipboard_clear()
+        self.clipboard_append(text)
+        self.update()  # garantit que le presse-papiers garde le contenu
+        nb_lines = text.count("\n") + 1
+        self._update_status(f"✅ Recap copié dans le presse-papiers ({nb_lines} lignes)")
+        logger.info(f"✅ Recap copié dans le presse-papiers : {root}")
+        messagebox.showinfo(
+            "Recap copié ✅",
+            f"Le recap de « {root} » a été copié dans le presse-papiers.\n\n"
+            f"Collez-le directement dans votre IA !"
+        )
+
     def _on_error(self, msg: str):
-        self._btn_recap.configure(state="normal")
+        self._set_buttons_state("normal")
         self._update_status(f"❌ Erreur : {msg}")
         logger.error(f"Erreur Recaper : {msg}")
         messagebox.showerror("Erreur", msg)

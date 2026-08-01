@@ -9,7 +9,7 @@ from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
-from treeforge.core.revers_recaper import extract
+from treeforge.core.revers_recaper import extract_text
 from treeforge.core.diff_engine import compute_plan_for_restore
 from treeforge.utils.logger import logger
 from treeforge.gui.components.diff_preview_modal import DiffPreviewModal
@@ -19,6 +19,7 @@ class ReversRecaperTab(ctk.CTkFrame):
     def __init__(self, parent, update_status):
         super().__init__(parent, fg_color="transparent")
         self._update_status = update_status
+        self._pasted_text: str | None = None
         self._build_ui()
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -73,7 +74,17 @@ class ReversRecaperTab(ctk.CTkFrame):
             text="Parcourir…",
             width=110,
             command=self._browse_recap,
-        ).grid(row=0, column=1)
+        ).grid(row=0, column=1, padx=(0, 8))
+
+        ctk.CTkButton(
+            row1,
+            text="📋  Coller",
+            width=100,
+            fg_color="transparent", border_width=1,
+            text_color=("gray15", "gray90"),
+            hover_color=("gray85", "gray25"),
+            command=self._paste_from_clipboard,
+        ).grid(row=0, column=2)
 
         # ── 3. Dossier destination ────────────────────────────────────────────
         ctk.CTkLabel(
@@ -145,31 +156,67 @@ class ReversRecaperTab(ctk.CTkFrame):
         )
         if path:
             self.recap_var.set(path)
+            self._pasted_text = None  # un fichier explicite prime sur un collage précédent
 
     def _browse_dest(self):
         path = filedialog.askdirectory(title="Choisir le dossier de destination")
         if path:
             self.dest_var.set(path)
 
+    def _paste_from_clipboard(self):
+        try:
+            text = self.clipboard_get()
+        except Exception:
+            messagebox.showwarning("TreeForge", "Le presse-papiers est vide ou illisible.")
+            return
+        if not text.strip():
+            messagebox.showwarning("TreeForge", "Le presse-papiers est vide.")
+            return
+        if "ARBORESCENCE" not in text or "<<TREEFORGE_FILE_BLOCK>>" not in text:
+            confirmed = messagebox.askyesno(
+                "Format non reconnu",
+                "Le contenu du presse-papiers ne ressemble pas à un recap "
+                "TreeForge (sections attendues introuvables).\n\n"
+                "Essayer quand même ?",
+            )
+            if not confirmed:
+                return
+
+        self._pasted_text = text
+        nb_lines = text.count("\n") + 1
+        self.recap_var.set(f"(presse-papiers — {nb_lines} lignes)")
+        self._update_status(f"📋 Recap collé depuis le presse-papiers ({nb_lines} lignes)")
+        logger.info("ReversRecaper — recap colle depuis le presse-papiers (%d lignes)", nb_lines)
+
     # ─────────────────────────────────────────────────────────────────────────
     # Restauration
     # ─────────────────────────────────────────────────────────────────────────
 
     def _restore(self):
-        recap = self.recap_var.get().strip()
-        dest  = self.dest_var.get().strip()
-
-        # ── Validations ───────────────────────────────────────────────────────
-        if not recap:
-            messagebox.showwarning("TreeForge", "Aucun fichier recap sélectionné.")
-            return
+        dest = self.dest_var.get().strip()
         if not dest:
             messagebox.showwarning("TreeForge", "Aucun dossier de destination sélectionné.")
             return
-        recap_path = Path(recap)
-        if not recap_path.exists():
-            messagebox.showerror("TreeForge", f"Fichier introuvable :\n{recap}")
-            return
+
+        # ── Résolution de la source : texte collé ou fichier sur disque ────────
+        if self._pasted_text is not None:
+            text = self._pasted_text
+            source_label = "presse-papiers"
+        else:
+            recap = self.recap_var.get().strip()
+            if not recap:
+                messagebox.showwarning("TreeForge", "Aucun fichier recap sélectionné.")
+                return
+            recap_path = Path(recap)
+            if not recap_path.exists():
+                messagebox.showerror("TreeForge", f"Fichier introuvable :\n{recap}")
+                return
+            try:
+                text = recap_path.read_text(encoding="utf-8", errors="replace")
+            except Exception as e:
+                messagebox.showerror("TreeForge", f"Impossible de lire le recap :\n{e}")
+                return
+            source_label = str(recap_path)
 
         dest_path = Path(dest)
         if dest_path.exists():
@@ -177,26 +224,21 @@ class ReversRecaperTab(ctk.CTkFrame):
             if existing:
                 # Dossier non vide → calcul du plan et validation via la modale de diff
                 # plutôt que le seul interrupteur global "Écraser les fichiers existants".
-                try:
-                    text = recap_path.read_text(encoding="utf-8", errors="replace")
-                except Exception as e:
-                    messagebox.showerror("TreeForge", f"Impossible de lire le recap :\n{e}")
-                    return
                 plan = compute_plan_for_restore(text, dest_path)
                 DiffPreviewModal(
                     self, plan,
-                    on_confirm=lambda p: self._launch_restore(recap_path, dest_path, p),
+                    on_confirm=lambda p: self._launch_restore(text, source_label, dest_path, p),
                     on_cancel=self._restore_cancelled,
                 )
                 return
 
-        self._launch_restore(recap_path, dest_path, plan=None)
+        self._launch_restore(text, source_label, dest_path, plan=None)
 
     def _restore_cancelled(self):
         self._update_status("Restauration annulee — dossier non ecrase")
         logger.info("ReversRecaper — restauration annulee par l'utilisateur (plan refuse)")
 
-    def _launch_restore(self, recap_path: Path, dest_path: Path, plan):
+    def _launch_restore(self, text: str, source_label: str, dest_path: Path, plan):
         overwrite = self.overwrite_var.get()
 
         # ── UI : état "en cours" ──────────────────────────────────────────────
@@ -206,19 +248,19 @@ class ReversRecaperTab(ctk.CTkFrame):
         self._progress.configure(mode="indeterminate")
         self._progress.start()
         self._update_status("Restauration en cours…")
-        logger.info("ReversRecaper — démarrage : %s → %s", recap_path, dest_path)
+        logger.info("ReversRecaper — démarrage : %s → %s", source_label, dest_path)
 
         # ── Thread ────────────────────────────────────────────────────────────
         threading.Thread(
             target=self._run,
-            args=(recap_path, dest_path, overwrite, plan),
+            args=(text, dest_path, overwrite, plan),
             daemon=True,
         ).start()
 
-    def _run(self, recap_path: Path, dest_dir: Path, overwrite: bool, plan):
+    def _run(self, text: str, dest_dir: Path, overwrite: bool, plan):
         """Exécuté dans un thread secondaire."""
         try:
-            result = extract(recap_path, dest_dir, overwrite=overwrite, plan=plan)
+            result = extract_text(text, dest_dir, overwrite=overwrite, plan=plan)
         except Exception as e:
             logger.exception("ReversRecaper — erreur inattendue")
             self.after(0, self._on_error, str(e))

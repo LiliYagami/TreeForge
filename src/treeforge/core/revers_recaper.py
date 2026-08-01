@@ -246,10 +246,34 @@ def extract(
     plan: "GenerationPlan | None" = None,
 ) -> ExtractResult:
     """
-    Reconstruction hybride depuis un recap TreeForge.
+    Reconstruction hybride depuis un fichier recap .txt sur disque.
+    Lit le fichier puis délègue à extract_text() — voir sa docstring pour
+    le détail des paramètres.
+    """
+    dest_dir = Path(dest_dir).resolve()
+    try:
+        text = recap_path.read_text(encoding="utf-8", errors="replace")
+    except Exception as e:
+        result = ExtractResult()
+        result.errors.append(f"Impossible de lire le recap : {e}")
+        return result
+
+    return extract_text(text, dest_dir, overwrite=overwrite, create_empty=create_empty, plan=plan)
+
+
+def extract_text(
+    text:       str,
+    dest_dir:   Path,
+    overwrite:      bool = True,
+    create_empty:   bool = True,
+    plan: "GenerationPlan | None" = None,
+) -> ExtractResult:
+    """
+    Reconstruction hybride depuis le texte recap directement (ex: collé
+    depuis le presse-papiers), sans fichier .txt intermédiaire sur disque.
 
     Args:
-        recap_path    : fichier recap .txt généré par recaper.py
+        text          : contenu recap (même format que génère recaper.py)
         dest_dir      : dossier de destination
         overwrite     : si False, ignore les fichiers déjà présents
         create_empty  : si True, crée les fichiers de l'arbre sans contenu texte
@@ -263,13 +287,6 @@ def extract(
     result  = ExtractResult()
     dest_dir = Path(dest_dir).resolve()
     dest_dir.mkdir(parents=True, exist_ok=True)
-
-    # ── Lecture ──────────────────────────────────────────────────────────────
-    try:
-        text = recap_path.read_text(encoding="utf-8", errors="replace")
-    except Exception as e:
-        result.errors.append(f"Impossible de lire le recap : {e}")
-        return result
 
     # ── Phase 1 : structure depuis l'arborescence ─────────────────────────────
     structure_nodes = _parse_arborescence(text)

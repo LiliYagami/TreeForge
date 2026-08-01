@@ -132,39 +132,17 @@ def _tree_lines(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Fonction principale — API publique
+# Construction du contenu — partagée entre recap() (fichier) et recap_text() (mémoire)
 # ─────────────────────────────────────────────────────────────────────────────
 
-def recap(
-    root: str | Path,
-    output_dir: str | Path | None = None,
-    exclude_dirs: set[str] | None = None,
-    exclude_files: set[str] | None = None,
-    on_progress: Callable[[str], None] | None = None,
-) -> Path:
-    """
-    Génère le fichier recap d'un projet.
-
-    Args:
-        root          : Racine du projet à analyser.
-        output_dir    : Dossier de sortie (défaut : root/recaps/).
-        exclude_dirs  : Dossiers supplémentaires à ignorer (fusionné avec DEFAULT_EXCLUDE_DIRS).
-        exclude_files : Fichiers spécifiques à ignorer (noms exacts).
-        on_progress   : Callback(message: str) appelé pour chaque fichier traité.
-
-    Returns:
-        Path vers le fichier .txt généré.
-    """
-    root          = Path(root).resolve()
-    exclude_dirs  = (exclude_dirs or set()) | DEFAULT_EXCLUDE_DIRS
-    exclude_files = exclude_files or set()
-    output_dir    = Path(output_dir).resolve() if output_dir else root / "recaps"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    out_name  = f"recap_{root.name}_{timestamp}.txt"
-    out_path  = output_dir / out_name
-
+def _build_lines(
+    root: Path,
+    exclude_dirs: set[str],
+    exclude_files: set[str],
+    timestamp: str,
+    skip_path: Path | None,
+    on_progress: Callable[[str], None] | None,
+) -> list[str]:
     # Séparateur de bloc — parsé par revers_recaper.py
     # IMPORTANT : ne PAS utiliser "-" * 80 (présent dans le code source lui-même)
     SEP  = "=" * 80
@@ -203,8 +181,9 @@ def recap(
         for file_name in sorted(files):
             file_path = Path(current_dir) / file_name
 
-            # Ignorer le fichier recap lui-même (évite la récursion)
-            if file_path.resolve() == out_path.resolve():
+            # Ignorer le fichier recap lui-même (évite la récursion) — sans
+            # objet si on ne génère pas de fichier (skip_path=None)
+            if skip_path is not None and file_path.resolve() == skip_path.resolve():
                 continue
 
             # Ignorer les fichiers exclus explicitement
@@ -239,6 +218,79 @@ def recap(
                 lines.append(f"[ERREUR LECTURE] {e}")
 
             lines.append("")
+
+    return lines
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fonctions principales — API publique
+# ─────────────────────────────────────────────────────────────────────────────
+
+def recap_text(
+    root: str | Path,
+    exclude_dirs: set[str] | None = None,
+    exclude_files: set[str] | None = None,
+    on_progress: Callable[[str], None] | None = None,
+) -> tuple[str, Path]:
+    """
+    Construit le texte recap d'un projet en mémoire, sans écrire de fichier
+    .txt sur disque — destiné au mode presse-papiers (copier direct, sans
+    passer par un fichier intermédiaire).
+
+    Args:
+        root          : Racine du projet à analyser.
+        exclude_dirs  : Dossiers supplémentaires à ignorer (fusionné avec DEFAULT_EXCLUDE_DIRS).
+        exclude_files : Fichiers spécifiques à ignorer (noms exacts).
+        on_progress   : Callback(message: str) appelé pour chaque fichier traité.
+
+    Returns:
+        (texte_recap, racine_résolue)
+    """
+    root          = Path(root).resolve()
+    exclude_dirs  = (exclude_dirs or set()) | DEFAULT_EXCLUDE_DIRS
+    exclude_files = exclude_files or set()
+    timestamp     = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=None, on_progress=on_progress)
+    text  = "\n".join(lines)
+
+    if on_progress:
+        on_progress("✅ Recap généré en mémoire (presse-papiers)")
+
+    return text, root
+
+
+def recap(
+    root: str | Path,
+    output_dir: str | Path | None = None,
+    exclude_dirs: set[str] | None = None,
+    exclude_files: set[str] | None = None,
+    on_progress: Callable[[str], None] | None = None,
+) -> Path:
+    """
+    Génère le fichier recap d'un projet.
+
+    Args:
+        root          : Racine du projet à analyser.
+        output_dir    : Dossier de sortie (défaut : root/recaps/).
+        exclude_dirs  : Dossiers supplémentaires à ignorer (fusionné avec DEFAULT_EXCLUDE_DIRS).
+        exclude_files : Fichiers spécifiques à ignorer (noms exacts).
+        on_progress   : Callback(message: str) appelé pour chaque fichier traité.
+
+    Returns:
+        Path vers le fichier .txt généré.
+    """
+    root          = Path(root).resolve()
+    exclude_dirs  = (exclude_dirs or set()) | DEFAULT_EXCLUDE_DIRS
+    exclude_files = exclude_files or set()
+    output_dir    = Path(output_dir).resolve() if output_dir else root / "recaps"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    out_name  = f"recap_{root.name}_{timestamp}.txt"
+    out_path  = output_dir / out_name
+
+    lines = _build_lines(root, exclude_dirs, exclude_files, timestamp, skip_path=out_path, on_progress=on_progress)
 
     # ── Écriture du fichier recap ─────────────────────────────────────────────
     out_path.write_text("\n".join(lines), encoding="utf-8")
